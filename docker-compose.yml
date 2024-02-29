@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  web:
+    image: base-app:v15
+    depends_on: 
+      - postgres
+    working_dir: /app
+    ports:
+      - "3000:3000"
+  postgres:
+    image: database:v1
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "Manhtung1@"
+    ports:
+      - "5432:5432"
