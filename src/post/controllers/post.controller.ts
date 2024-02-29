@@ -29,42 +29,39 @@ export class PostController {
                 })
         ) files: Express.Multer.File[],
         @Req() req: Request,
-        @Body() post: CreatePostReqDto,
-        @Res() res: Response) {
+        @Body() post: CreatePostReqDto) {
         post.userId = req['user'].accountId
-        const data: PostResDto = await this.postService.create(post, files)
-        res.status(HttpStatus.OK).json({ data })
+        return await this.postService.create(post, files)
     }
     @Patch('update')
     @UseGuards(AuthenticationGuard, RolesGuard)
     @Roles(Role.user)
-    async update(@Req() req: Request, @Body() post: UpdatePostReqDto, @Res() res: Response) {
+    async update(
+        @Req() req: Request, 
+        @Body() post: UpdatePostReqDto) {
         post.userId = req['user'].accountId
-        const data: PostResDto = await this.postService.update(post)
-        res.status(HttpStatus.OK).json({ data })
+        return await this.postService.update(post)
     }
     @Get('getbyuser/:id')
     @UseInterceptors(CacheInterceptor)
-    async getByUser(@Param('id', new ParseIntPipe()) id: number, @Res() res: Response) {
-        const data: PostResDto[] = await this.postService.getListPostByUser(id)
-        res.status(HttpStatus.OK).json({ data })
+    async getByUser(
+        @Param('id', new ParseIntPipe()) id: number) {
+        return await this.postService.getListPostByUser(id)
     }
     @Get(':id')
     @UseInterceptors(CacheInterceptor)
-    async getPost(@Param('id', new ParseIntPipe()) id: number, @Res() res: Response) {
-        const data: PostResDto = await this.postService.getPost(id)
-        res.status(HttpStatus.OK).json({ data })
+    async getPost(
+        @Param('id', new ParseIntPipe()) id: number) {
+            return await this.postService.getPost(id)
     }
     @Get('getall')
     @UseInterceptors(CacheInterceptor)
-    async getAll(@Res() res: Response) {
-        const data: PostResDto[] = await this.postService.getAllPost()
-        res.status(HttpStatus.OK).json({ data })
+    async getAll() {
+        return await this.postService.getAllPost()
     }
     @Get('getpostsforhome')
     @UseInterceptors(CacheInterceptor)
-    async getForHome(@Query() pagination:PaginationReqDto, @Res() res: Response) {
-        const data: PostResDto[] = await this.postService.getPostsWithPagination(pagination)
-        res.status(HttpStatus.OK).json({ data })
+    async getForHome(@Query() pagination:PaginationReqDto) {
+        return await this.postService.getPostsWithPagination(pagination)
     }
 }

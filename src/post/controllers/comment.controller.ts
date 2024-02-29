@@ -17,35 +17,29 @@ export class CommentController {
     @Roles(Role.user)
     async addNew(
         @Req() req: Request,
-        @Body() body: CreateCommentReqDto,
-        @Res() res: Response
+        @Body() body: CreateCommentReqDto
     ){
         body.userId = req['user'].userId
-        const data:CommentResDto = await this.commentService.addNew(body)
-        return res.status(HttpStatus.CREATED).json({data})
+        return await this.commentService.addNew(body)
     }
     @Patch('update')
     @UseGuards(AuthenticationGuard, RolesGuard)
     @Roles(Role.user)
     async update(
         @Req() req: Request,
-        @Body() body: UpdateCommentReqDto,
-        @Res() res: Response
+        @Body() body: UpdateCommentReqDto
     ){
         body.userId = req['user'].userId
-        const data:CommentResDto = await this.commentService.update(body)
-        return res.status(HttpStatus.OK).json({data})
+        return await this.commentService.update(body)
     }
     @Delete(':id')
     @UseGuards(AuthenticationGuard, RolesGuard)
     @Roles(Role.user)
     async delete(
         @Req() req: Request,
-        @Param('id', new ParseIntPipe()) id:number,
-        @Res() res: Response
+        @Param('id', new ParseIntPipe()) id:number
     ){
         const deleteReq:DeleteCommentReqDto = {id,userId:req['user'].userId}
-        const data:CommentResDto = await this.commentService.delete(deleteReq)
-        return res.status(HttpStatus.OK).json({data})
+        return await this.commentService.delete(deleteReq)
     }
 }

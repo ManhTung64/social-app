@@ -35,4 +35,4 @@ import { AppGateway } from './event.gateway';
   controllers: [],
   providers: [AppGateway],
 })
-export class AppModule { }
+export class AppModule {}

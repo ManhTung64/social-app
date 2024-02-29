@@ -3,11 +3,13 @@ import { AppModule } from './app.module';
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { ServerErrorExceptionFilter } from './exception-filter/server-error.exception';
+import { ResponseInterceptor } from './interceptor/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(helmet());
   app.enableCors();
+  app.useGlobalInterceptors(new ResponseInterceptor())
   app.useGlobalPipes(new ValidationPipe({
     errorHttpStatusCode: HttpStatus.BAD_REQUEST}));
   app.useGlobalFilters(new ServerErrorExceptionFilter());

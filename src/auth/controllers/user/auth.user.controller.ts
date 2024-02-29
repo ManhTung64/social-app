@@ -13,36 +13,30 @@ import { UserDto, UserTokenDto } from 'src/auth/dtos/res/user.req.dto';
 import { CreateUserDto, LoginDto } from 'src/auth/dtos/req/user.dto';
 import { UserVerifyCodeDto } from 'src/auth/dtos/req/code.dto';
 import { UpdateDto } from 'src/auth/dtos/req/profile.dto';
+import { ResponseInterceptor } from 'src/interceptor/response.interceptor';
 
 @Controller('api/auth/user')
 export class UserController {
-    constructor(private readonly userService:UserService, profileService:ProfileService){
+    constructor(private readonly userService: UserService, profileService: ProfileService) {
 
     }
     @Get('/getall')
     @UseGuards(AuthenticationGuard, RolesGuard)
     @Roles(Role.user)
     @UseInterceptors(CacheInterceptor)
-    async getAll (
-        @Req() req:Request, 
-        @Res() res:Response){
-            const data:Array<UserDto> = await this.userService.getAllUser()
-            return res.status(HttpStatus.OK).json({data})
+    async getAll() {
+        return await this.userService.getAllUser()
     }
     @Get('/getonewithprofile')
     @UseGuards(AuthenticationGuard)
-    async getOneWithProfile (
-        @Req() req:Request, 
-        @Res() res:Response){
-            const data:User = await this.userService.getUserWithProfile(req['user'].username)
-            return res.status(HttpStatus.OK).json({data})
+    async getOneWithProfile(
+        @Req() req: Request) {
+        return await this.userService.getUserWithProfile(req['user'].username)
     }
     @Post('/addnew')
-    async createNewUser (
-        @Body() createNewUser:CreateUserDto, 
-        @Res() res:Response){
-            const data:UserDto = await this.userService.createNewUser(createNewUser)
-            return res.status(HttpStatus.OK).json({data})
+    async createNewUser(
+        @Body() createNewUser: CreateUserDto) {
+        return await this.userService.createNewUser(createNewUser)
     }
     // @Put(':id')
     // async updateInformation (
@@ -53,61 +47,38 @@ export class UserController {
     //         return res.status(HttpStatus.OK).json({data:data})
     // }
     @Post('/login')
-    async login (
-        @Body() loginInfo:LoginDto, 
-        @Res() res:Response){
-            const data:UserTokenDto = await this.userService.login(loginInfo)
-            return res.status(HttpStatus.OK).json({data})
+    @UseInterceptors(ResponseInterceptor)
+    async login(
+        @Body() loginInfo: LoginDto) {
+        return await this.userService.login(loginInfo)
     }
     @Patch('verify')
     @UseGuards(AuthenticationGuard)
-    async verifyUser (
-        @Req() req:Request,
-        @Res() res:Response,
-        @Body() body:UserVerifyCodeDto
-    ){
+    async verifyUser(
+        @Req() req: Request,
+        @Body() body: UserVerifyCodeDto
+    ) {
         body.userId = req['user'].userId
-        const isVerify:boolean = await this.userService.verifyUser(body)
-        if (!isVerify) return res.status(HttpStatus.BAD_REQUEST).json({message:"Code is invalid or expried"})
-        else return res.status(HttpStatus.OK).json({})
-    }
-    @Post('/updateprofile')
-    @UseGuards(AuthenticationGuard)
-    @UseInterceptors(FileInterceptor('file'))
-    async uploadSingleFile (
-    @UploadedFile(
-        new ParseFilePipe({
-            validators:[
-                new MaxFileSizeValidator({maxSize:100000, message:'File is so large'}),
-                new FileTypeValidator({fileType:'image'})
-            ]
-        })
-    ) file:Express.Multer.File, 
-    @Req() req:Request,
-    @Body() updateProfile:UpdateDto,
-    @Res() res:Response){
-        updateProfile.id = req['user'].userId
-        if (file) updateProfile.avatar = file
-
+        return await this.userService.verifyUser(body)
     }
     @Post('/uploadmanyfile')
-    @UseInterceptors(FilesInterceptor('files',3))
-    async uploadMulFile (@UploadedFile(
+    @UseInterceptors(FilesInterceptor('files', 3))
+    async uploadMulFile(@UploadedFile(
         new ParseFilePipeBuilder()
-        .addFileTypeValidator({fileType:'jpg'})
-        .addMaxSizeValidator({maxSize:10000})
-        .build({
-            errorHttpStatusCode:HttpStatus.UNPROCESSABLE_ENTITY
-        })
-    ) files:Express.Multer.File[], @Res() res:Response){
-            return res.status(HttpStatus.OK).json()
+            .addFileTypeValidator({ fileType: 'jpg' })
+            .addMaxSizeValidator({ maxSize: 10000 })
+            .build({
+                errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+            })
+    ) files: Express.Multer.File[], @Res() res: Response) {
+        return res.status(HttpStatus.OK).json()
     }
     @Post('/uploadmanyfieldfile')
     @UseInterceptors(FileFieldsInterceptor([
-        {name:'avatar',maxCount:1},
-        {name:'background',maxCount:1}
+        { name: 'avatar', maxCount: 1 },
+        { name: 'background', maxCount: 1 }
     ]))
-    async uploadManyFieldFile (@UploadedFile() files:{ avt:Express.Multer.File[],bg?:Express.Multer.File}, @Res() res:Response){
-            return res.status(HttpStatus.OK).json()
+    async uploadManyFieldFile(@UploadedFile() files: { avt: Express.Multer.File[], bg?: Express.Multer.File }, @Res() res: Response) {
+        return res.status(HttpStatus.OK).json()
     }
 }

@@ -13,10 +13,8 @@ export class ProfileController {
     @Get('/getonewithprofile')
     @UseGuards(AuthenticationGuard)
     async getOneWithProfile (
-        @Req() req:Request, 
-        @Res() res:Response){
-            const data:User = await this.userService.getUserWithProfile(req['user'].username)
-            return res.status(HttpStatus.OK).json({data})
+        @Req() req:Request){
+            return await this.userService.getUserWithProfile(req['user'].username)
     }
     @Post('/updateprofile')
     @UseGuards(AuthenticationGuard)
@@ -31,11 +29,9 @@ export class ProfileController {
         })
     ) file:Express.Multer.File, 
     @Req() req:Request,
-    @Body() updateProfile:UpdateDto,
-    @Res() res:Response){
+    @Body() updateProfile:UpdateDto){
         updateProfile.id = req['user'].userId
         if (file) updateProfile.avatar = file
-        const profile:Profile = await this.userService.updateProfile(updateProfile)
-        return res.status(HttpStatus.OK).json({profile})
+        return await this.userService.updateProfile(updateProfile)
     }
 }

@@ -8,6 +8,8 @@ export class UserDto{
     isActive:boolean
 
     createAt:Date
+    @Exclude()
+    password:string
 }
 @Expose()
 export class UserTokenDto extends UserDto{
