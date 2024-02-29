@@ -1,10 +1,10 @@
 import { Module, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, WsResponse, WsException } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { GroupModule } from './group/group.module';
+import { GroupModule } from '../group/group.module';
 import { WebSocketExceptionFilter } from './exception-filter/event-gateway.exception';
-import { GroupService } from './group/services/group.service';
-import { AddMember, RemoveMember } from './group/dtos/req/member.dto';
+import { GroupService } from '../group/services/group.service';
+import { AddMember, RemoveMember } from '../group/dtos/req/member.dto';
 
 @Module({
     imports:[GroupModule]

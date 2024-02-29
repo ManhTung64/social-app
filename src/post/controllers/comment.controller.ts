@@ -2,9 +2,9 @@ import { Body, Controller, Delete, HttpStatus, Param, ParseIntPipe, Patch, Post,
 import { CommentService } from "../services/comment.service";
 import { Request, Response } from "express"; 
 import { CreateCommentReqDto, DeleteCommentReqDto, UpdateCommentReqDto } from "../dtos/req/comment.req.dto";
-import { AuthenticationGuard } from "src/guards/auth.guard";
-import { RolesGuard } from "src/guards/role.guard";
-import { Role, Roles } from "src/guards/role.decorator";
+import { AuthenticationGuard } from "src/common/guards/auth.guard";
+import { RolesGuard } from "src/common/guards/role.guard";
+import { Role, Roles } from "src/common/guards/role.decorator";
 import { CommentResDto } from "../dtos/res/comment.res.dto";
 
 

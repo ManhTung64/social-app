@@ -2,8 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
-import { ServerErrorExceptionFilter } from './exception-filter/server-error.exception';
-import { ResponseInterceptor } from './interceptor/response.interceptor';
+import { ServerErrorExceptionFilter } from './common/exception-filter/server-error.exception';
+import { ResponseInterceptor } from './common/interceptor/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

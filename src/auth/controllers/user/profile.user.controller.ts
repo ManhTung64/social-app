@@ -2,7 +2,7 @@ import { Body, Controller, FileTypeValidator, Get, HttpStatus, MaxFileSizeValida
 import { User } from "src/auth/entities/user/user.entity";
 import { UserService } from "src/auth/services/user.service";
 import { Request, Response } from "express";
-import { AuthenticationGuard } from "src/guards/auth.guard";
+import { AuthenticationGuard } from "src/common/guards/auth.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Profile } from "src/auth/entities/user/profile.entity";
 import { UpdateDto } from "src/auth/dtos/req/profile.dto";

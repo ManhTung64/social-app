@@ -9,7 +9,7 @@ import { PostModule } from './post/post.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GroupModule } from './group/group.module';
 import { SchedulingModule } from './scheduling/scheduling.module';
-import { AppGateway } from './event.gateway';
+import { AppGateway } from './socket-gateway/event.gateway';
 
 @Module({
   imports: [

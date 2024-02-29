@@ -3,17 +3,17 @@ import { Response, Request } from 'express';
 import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UserService } from 'src/auth/services/user.service';
 import { ProfileService } from 'src/auth/services/profile.service';
-import { AuthenticationGuard } from 'src/guards/auth.guard';
-import { RolesGuard } from 'src/guards/role.guard';
-import { Role, Roles } from 'src/guards/role.decorator';
-import { CacheInterceptor } from 'src/interceptor/cache.interceptor';
+import { AuthenticationGuard } from 'src/common/guards/auth.guard';
+import { RolesGuard } from 'src/common/guards/role.guard';
+import { Role, Roles } from 'src/common/guards/role.decorator';
+import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
 import { User } from 'src/auth/entities/user/user.entity';
 import { Profile } from 'src/auth/entities/user/profile.entity';
 import { UserDto, UserTokenDto } from 'src/auth/dtos/res/user.req.dto';
 import { CreateUserDto, LoginDto } from 'src/auth/dtos/req/user.dto';
 import { UserVerifyCodeDto } from 'src/auth/dtos/req/code.dto';
 import { UpdateDto } from 'src/auth/dtos/req/profile.dto';
-import { ResponseInterceptor } from 'src/interceptor/response.interceptor';
+import { ResponseInterceptor } from 'src/common/interceptor/response.interceptor';
 
 @Controller('api/auth/user')
 export class UserController {

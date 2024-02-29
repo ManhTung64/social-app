@@ -1,13 +1,13 @@
 import { Body, Controller, Get, HttpStatus, Param, ParseFilePipeBuilder, ParseIntPipe, Patch, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { PostService } from '../services/post.service';
-import { AuthenticationGuard } from 'src/guards/auth.guard';
-import { RolesGuard } from 'src/guards/role.guard';
-import { Role, Roles } from 'src/guards/role.decorator';
+import { AuthenticationGuard } from 'src/common/guards/auth.guard';
+import { RolesGuard } from 'src/common/guards/role.guard';
+import { Role, Roles } from 'src/common/guards/role.decorator';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreatePostReqDto, UpdatePostReqDto } from '../dtos/req/post.dto';
 import { PostContent } from '../entities/post.entity';
 import {Request, Response} from 'express'
-import { CacheInterceptor } from 'src/interceptor/cache.interceptor';
+import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
 import { PaginationReqDto } from '../dtos/req/pagination.dto';
 import { PostResDto } from '../dtos/res/post.res.dto';
 
