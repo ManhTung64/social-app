@@ -1,16 +1,16 @@
 import { Exclude, Expose } from "class-transformer"
 
-@Exclude()
+@Expose()
 export class UserDto{
-    @Expose()
+    
     username:string
-    @Expose()
+
     isActive:boolean
-    @Expose()
+
     createAt:Date
 }
-@Exclude()
+@Expose()
 export class UserTokenDto extends UserDto{
-    @Expose()
+    
     token:string
 }

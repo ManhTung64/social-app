@@ -1,5 +1,6 @@
 import { Profile } from "src/auth/entities/user/profile.entity";
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Comment } from "./comment.entity";
 
 @Entity('post')
 @Index('idx_title',['title'])
@@ -27,6 +28,10 @@ export class PostContent{
     @ManyToOne(() => Profile,profile=>profile.id, { cascade: true })
     @JoinColumn()
     user: Profile;
+
+    @OneToMany(()=>Comment,comment=>comment.id,{onDelete:'CASCADE'})
+    @JoinColumn()
+    comments:Comment[]
 }
 export interface FileInfo {
     type: string

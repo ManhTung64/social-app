@@ -2,7 +2,7 @@ import { IsNotEmpty, IsOptional, MinLength } from "class-validator"
 import { Profile } from "src/auth/entities/user/profile.entity"
 import { FileInfo } from "src/post/entities/post.entity"
 
-export class CreatePost{
+export class CreatePostReqDto{
     @IsNotEmpty()
     @MinLength(1)
     title:string
@@ -16,7 +16,7 @@ export class CreatePost{
     files: FileInfo[]
 }
 
-export class UpdatePost{
+export class UpdatePostReqDto{
     @IsOptional()
     @MinLength(1)
     title:string

@@ -4,11 +4,12 @@ import { AuthenticationGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/role.guard';
 import { Role, Roles } from 'src/guards/role.decorator';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { CreatePost, UpdatePost } from '../dtos/req/post.dto';
+import { CreatePostReqDto, UpdatePostReqDto } from '../dtos/req/post.dto';
 import { PostContent } from '../entities/post.entity';
 import {Request, Response} from 'express'
 import { CacheInterceptor } from 'src/interceptor/cache.interceptor';
-import { PaginationDto } from '../dtos/req/pagination.dto';
+import { PaginationReqDto } from '../dtos/req/pagination.dto';
+import { PostResDto } from '../dtos/res/post.res.dto';
 
 
 @Controller('api/post')
@@ -28,42 +29,42 @@ export class PostController {
                 })
         ) files: Express.Multer.File[],
         @Req() req: Request,
-        @Body() post: CreatePost,
+        @Body() post: CreatePostReqDto,
         @Res() res: Response) {
         post.userId = req['user'].accountId
-        const data: PostContent = await this.postService.create(post, files)
+        const data: PostResDto = await this.postService.create(post, files)
         res.status(HttpStatus.OK).json({ data })
     }
     @Patch('update')
     @UseGuards(AuthenticationGuard, RolesGuard)
     @Roles(Role.user)
-    async update(@Req() req: Request, @Body() post: UpdatePost, @Res() res: Response) {
+    async update(@Req() req: Request, @Body() post: UpdatePostReqDto, @Res() res: Response) {
         post.userId = req['user'].accountId
-        const data: PostContent = await this.postService.update(post)
+        const data: PostResDto = await this.postService.update(post)
         res.status(HttpStatus.OK).json({ data })
     }
     @Get('getbyuser/:id')
     @UseInterceptors(CacheInterceptor)
     async getByUser(@Param('id', new ParseIntPipe()) id: number, @Res() res: Response) {
-        const data: PostContent[] = await this.postService.getListPostByUser(id)
+        const data: PostResDto[] = await this.postService.getListPostByUser(id)
         res.status(HttpStatus.OK).json({ data })
     }
     @Get(':id')
     @UseInterceptors(CacheInterceptor)
     async getPost(@Param('id', new ParseIntPipe()) id: number, @Res() res: Response) {
-        const data: PostContent = await this.postService.getPost(id)
+        const data: PostResDto = await this.postService.getPost(id)
         res.status(HttpStatus.OK).json({ data })
     }
     @Get('getall')
     @UseInterceptors(CacheInterceptor)
     async getAll(@Res() res: Response) {
-        const data: PostContent[] = await this.postService.getAllPost()
+        const data: PostResDto[] = await this.postService.getAllPost()
         res.status(HttpStatus.OK).json({ data })
     }
     @Get('getpostsforhome')
     @UseInterceptors(CacheInterceptor)
-    async getForHome(@Query() pagination:PaginationDto, @Res() res: Response) {
-        const data: PostContent[] = await this.postService.getPostsWithPagination(pagination)
+    async getForHome(@Query() pagination:PaginationReqDto, @Res() res: Response) {
+        const data: PostResDto[] = await this.postService.getPostsWithPagination(pagination)
         res.status(HttpStatus.OK).json({ data })
     }
 }

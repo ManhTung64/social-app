@@ -36,6 +36,6 @@ export class ProfileController {
         updateProfile.id = req['user'].userId
         if (file) updateProfile.avatar = file
         const profile:Profile = await this.userService.updateProfile(updateProfile)
-        return res.status(200).json({profile})
+        return res.status(HttpStatus.OK).json({profile})
     }
 }

@@ -1,6 +1,6 @@
 import { IsInt, IsOptional, Min } from "class-validator";
 
-export class PaginationDto {
+export class PaginationReqDto {
     private MIN_PAGE:number = 1
     private MIN_LIMIT:number = 10
     @IsOptional()

@@ -3,16 +3,16 @@ import { PostContent } from "../entities/post.entity"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Injectable } from "@nestjs/common"
 import { Like, Repository } from "typeorm"
-import { CreatePost } from "../dtos/req/post.dto"
+import { CreatePostReqDto } from "../dtos/req/post.dto"
 import { Profile } from "src/auth/entities/user/profile.entity"
-import { PaginationDto } from "../dtos/req/pagination.dto"
+import { PaginationReqDto } from "../dtos/req/pagination.dto"
 
 @Injectable()
 export class PostRepository extends BaseRepository<PostContent>{
     constructor(@InjectRepository(PostContent) private postRepository: Repository<PostContent>) {
         super(postRepository)
     }
-    public async createNew(createPostDto: CreatePost): Promise<PostContent> {
+    public async createNew(createPostDto: CreatePostReqDto): Promise<PostContent> {
         return await this.postRepository.save(this.postRepository.create({ ...createPostDto }))
     }
     public async findOneById(id: number): Promise<PostContent> {
@@ -30,7 +30,7 @@ export class PostRepository extends BaseRepository<PostContent>{
     public async getByUser (profile:Profile):Promise<PostContent[]>{
         return await this.postRepository.find({where:{user:profile}})
     }
-    public async findWithPagination (pagination:PaginationDto):Promise<PostContent[]>{
+    public async findWithPagination (pagination:PaginationReqDto):Promise<PostContent[]>{
         return await this.postRepository.find({
             skip:pagination.page - 1 * pagination.limit,
             take: pagination.limit
