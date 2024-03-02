@@ -3,7 +3,7 @@ import { Process, Processor } from "@nestjs/bull";
 import { Job } from "bull";
 import { CodeService } from "../services/code.service";
 import { UserService } from "../services/user.service";
-import { MailService } from "src/mail/services/mail.service";
+import { MailService } from "../../mail/services/mail.service";
 
 @Processor('mail-queue')
 export class MailConsumer {

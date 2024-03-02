@@ -6,7 +6,7 @@ export class BaseRepository<T>{
 
     }
     public async findAll(): Promise<T[]> {
-        return await this.repository.find().catch(() => null)
+        return await this.repository.find().catch((e) => {console.log(e);return null})
     }
     public async delete(id: number): Promise<any> {
         return await this.repository.delete(id).catch(() => null)

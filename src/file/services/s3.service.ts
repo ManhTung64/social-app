@@ -1,4 +1,4 @@
-import s3Config from "src/configuration/s3.config";
+import s3Config from "../../configuration/s3.config";
 import { CompleteMultipartUploadCommand, CreateMultipartUploadCommand, ObjectCannedACL, PutObjectAclCommand, PutObjectCommand, UploadPartCommand } from "@aws-sdk/client-s3";
 import { Injectable } from "@nestjs/common";
 import { UploadFile } from "../dtos/req/file.dto.req";

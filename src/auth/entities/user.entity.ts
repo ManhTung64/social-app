@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Profile } from "./profile.entity";
-import { Role } from "src/common/guards/role.decorator";
+import { Role } from "../../common/guards/role.decorator";
 
 @Entity({name:'users'}) // name of entity
 export class User {

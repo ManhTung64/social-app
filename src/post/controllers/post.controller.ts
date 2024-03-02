@@ -1,13 +1,13 @@
 import { Body, Controller, Get, HttpStatus, Param, ParseFilePipeBuilder, ParseIntPipe, Patch, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { PostService } from '../services/post.service';
-import { AuthenticationGuard } from 'src/common/guards/auth.guard';
-import { RolesGuard } from 'src/common/guards/role.guard';
-import { Role, Roles } from 'src/common/guards/role.decorator';
+import { AuthenticationGuard } from '../../common/guards/auth.guard';
+import { RolesGuard } from '../../common/guards/role.guard';
+import { Role, Roles } from '../../common/guards/role.decorator';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreatePostReqDto, UpdatePostReqDto } from '../dtos/req/post.dto';
 import { PostContent } from '../entities/post.entity';
 import {Request, Response} from 'express'
-import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
+import { CacheInterceptor } from '../../common/interceptor/cache.interceptor';
 import { PaginationReqDto } from '../dtos/req/pagination.dto';
 import { PostResDto } from '../dtos/res/post.res.dto';
 
@@ -48,13 +48,13 @@ export class PostController {
         @Param('id', new ParseIntPipe()) id: number) {
         return await this.postService.getListPostByUser(id)
     }
-    @Get(':id')
+    @Get('get/:id')
     @UseInterceptors(CacheInterceptor)
     async getPost(
         @Param('id', new ParseIntPipe()) id: number) {
             return await this.postService.getPost(id)
     }
-    @Get('getall')
+    @Get('/getall')
     @UseInterceptors(CacheInterceptor)
     async getAll() {
         return await this.postService.getAllPost()

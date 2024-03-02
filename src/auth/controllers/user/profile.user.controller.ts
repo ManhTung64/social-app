@@ -1,11 +1,11 @@
 import { Body, Controller, FileTypeValidator, Get, HttpStatus, MaxFileSizeValidator, ParseFilePipe, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
-import { User } from "src/auth/entities/user/user.entity";
-import { UserService } from "src/auth/services/user.service";
+import { User } from "../../entities/user.entity";
+import { UserService } from "../../services/user.service";
 import { Request, Response } from "express";
-import { AuthenticationGuard } from "src/common/guards/auth.guard";
+import { AuthenticationGuard } from "../../../common/guards/auth.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { Profile } from "src/auth/entities/user/profile.entity";
-import { UpdateDto } from "src/auth/dtos/req/profile.dto";
+import { Profile } from "../../entities/profile.entity";
+import { UpdateDto } from "../../dtos/req/profile.dto";
 
 @Controller('api/profile')
 export class ProfileController {

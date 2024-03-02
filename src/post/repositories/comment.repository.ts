@@ -1,4 +1,4 @@
-import { BaseRepository } from "src/common/repository.common"
+import { BaseRepository } from "../../common/repository.common"
 import { Injectable } from "@nestjs/common"
 import { Comment } from "../entities/comment.entity"
 import { InjectRepository } from "@nestjs/typeorm"

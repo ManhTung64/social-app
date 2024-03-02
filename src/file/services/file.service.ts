@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { S3Service } from './s3.service';
 import { Multer } from 'multer';
 import { UploadFile } from '../dtos/req/file.dto.req';
-import { FileInfo } from 'src/post/entities/post.entity';
+import { FileInfo } from '../../post/entities/post.entity';
 
 @Injectable()
 export class FileService {

@@ -1,6 +1,6 @@
 import { Exclude, Expose } from "class-transformer"
-import { Profile } from "src/auth/entities/user/profile.entity"
-import { FileInfo } from "src/post/entities/post.entity"
+import { Profile } from "../../../auth/entities/profile.entity"
+import { FileInfo } from "../../../post/entities/post.entity"
 
 @Expose()
 export class PostResDto{

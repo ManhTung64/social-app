@@ -1,8 +1,8 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostContent } from './entities/post.entity';
-import { AuthModule } from 'src/auth/auth.module';
-import { FileModule } from 'src/file/file.module';
+import { AuthModule } from '../auth/auth.module';
+import { FileModule } from '../file/file.module';
 import { PostController } from './controllers/post.controller';
 import { PostService } from './services/post.service';
 import { PostRepository } from './repositories/post.repository';
@@ -25,7 +25,8 @@ import { CommentRepository } from './repositories/comment.repository';
     PostService,
     PostRepository,
     CommentService,
-    CommentRepository
-  ]
+    CommentRepository,
+  ],
+  exports:[PostRepository]
 })
 export class PostModule { }

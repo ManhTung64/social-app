@@ -1,10 +1,10 @@
-import { BaseRepository } from "src/common/repository.common"
+import { BaseRepository } from "../../common/repository.common"
 import { PostContent } from "../entities/post.entity"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Injectable } from "@nestjs/common"
 import { Like, Repository } from "typeorm"
 import { CreatePostReqDto } from "../dtos/req/post.dto"
-import { Profile } from "src/auth/entities/user/profile.entity"
+import { Profile } from "../../auth/entities/profile.entity"
 import { PaginationReqDto } from "../dtos/req/pagination.dto"
 
 @Injectable()

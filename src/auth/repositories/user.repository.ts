@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BaseRepository } from "../../common/repository.common";
 import { LessThan, Repository} from "typeorm";
-import { User } from "../entities/user/user.entity";
-import { Profile } from "../entities/user/profile.entity";
+import { User } from "../entities/user.entity";
+import { Profile } from "../entities/profile.entity";
 import { CreateUserDto } from "../dtos/req/user.dto";
 
 @Injectable()
@@ -42,18 +42,18 @@ export class UserRepository extends BaseRepository<User>{
             .orderBy('users.createAt', "DESC")
             .getOne()
 
-        const data2 = await this.userRepository.createQueryBuilder('users')
-            .select(["users.id", "users.username"])
-            .where("users.createAt < :now", { now: new Date() })
-            .orWhere("users.isActive = :active", { active: false })
-            .offset(1)
-            .getMany()
+        // const data2 = await this.userRepository.createQueryBuilder('users')
+        //     .select(["users.id", "users.username"])
+        //     .where("users.createAt < :now", { now: new Date() })
+        //     .orWhere("users.isActive = :active", { active: false })
+        //     .offset(1)
+        //     .getMany()
 
-        const users = await this.userRepository
-            .createQueryBuilder('users')
-            .select(['SUM(users.) as totalAmount'])
-            .groupBy('user.id')
-            .getMany();
+        // const users = await this.userRepository
+        //     .createQueryBuilder('users')
+        //     .select(['SUM(users.) as totalAmount'])
+        //     .groupBy('users.id')
+        //     .getMany();
 
         // const posts = await this.userRepository
         // .createQueryBuilder('post')
@@ -64,8 +64,8 @@ export class UserRepository extends BaseRepository<User>{
         // .having('commentCount >= :minCommentCount', { minCommentCount: 5 })
         // .getRawMany();
 
-        console.log(data2)
-        console.log(users)
+        // console.log(data2)
+        // console.log(users)
         return data
     }
 

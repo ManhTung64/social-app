@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ProfileRepository } from '../repositories/profile.repository';
-import { User } from '../entities/user/user.entity';
-import { Profile } from '../entities/user/profile.entity';
+import { User } from '../entities/user.entity';
+import { Profile } from '../entities/profile.entity';
 import { UpdateDto } from '../dtos/req/profile.dto';
-import { FileService } from 'src/file/services/file.service';
+import { FileService } from '../../file/services/file.service';
 
 @Injectable()
 export class ProfileService {

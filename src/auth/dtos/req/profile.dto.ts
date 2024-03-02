@@ -1,5 +1,5 @@
 import { IsOptional, Length } from "class-validator"
-import { UploadFile } from "src/file/dtos/req/file.dto.req"
+import { UploadFile } from "../../../file/dtos/req/file.dto.req"
 
 export class UpdateDto{
     @IsOptional()

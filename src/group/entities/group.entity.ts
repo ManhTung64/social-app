@@ -1,5 +1,5 @@
 // import { profile } from "console";
-import { Profile } from "src/auth/entities/user/profile.entity";
+import { Profile } from "../../auth/entities/profile.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('group')

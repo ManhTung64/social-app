@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { CommentRepository } from "../repositories/comment.repository";
-import { ProfileRepository } from "src/auth/repositories/profile.repository";
-import { UserRepository } from "src/auth/repositories/user.repository";
+import { ProfileRepository } from "../../auth/repositories/profile.repository";
+import { UserRepository } from "../../auth/repositories/user.repository";
 import { CommentResDto } from "../dtos/res/comment.res.dto";
 import { CreateCommentReqDto, DeleteCommentReqDto, UpdateCommentReqDto } from "../dtos/req/comment.req.dto";
 import { PostRepository } from "../repositories/post.repository";

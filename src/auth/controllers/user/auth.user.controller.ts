@@ -1,19 +1,19 @@
 import { BadRequestException, Body, Controller, FileTypeValidator, Get, HttpCode, HttpException, HttpStatus, MaxFileSizeValidator, NotFoundException, Param, ParseFilePipe, ParseFilePipeBuilder, ParseIntPipe, Patch, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { UserService } from 'src/auth/services/user.service';
-import { ProfileService } from 'src/auth/services/profile.service';
-import { AuthenticationGuard } from 'src/common/guards/auth.guard';
-import { RolesGuard } from 'src/common/guards/role.guard';
-import { Role, Roles } from 'src/common/guards/role.decorator';
-import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
-import { User } from 'src/auth/entities/user/user.entity';
-import { Profile } from 'src/auth/entities/user/profile.entity';
-import { UserDto, UserTokenDto } from 'src/auth/dtos/res/user.req.dto';
-import { CreateUserDto, LoginDto } from 'src/auth/dtos/req/user.dto';
-import { UserVerifyCodeDto } from 'src/auth/dtos/req/code.dto';
-import { UpdateDto } from 'src/auth/dtos/req/profile.dto';
-import { ResponseInterceptor } from 'src/common/interceptor/response.interceptor';
+import { UserService } from '../../services/user.service';
+import { ProfileService } from '../../services/profile.service';
+import { AuthenticationGuard } from '../../../common/guards/auth.guard';
+import { RolesGuard } from '../../../common/guards/role.guard';
+import { Role, Roles } from '../../../common/guards/role.decorator';
+import { CacheInterceptor } from '../../../common/interceptor/cache.interceptor';
+import { User } from '../../entities/user.entity';
+import { Profile } from '../../entities/profile.entity';
+import { UserDto, UserTokenDto } from '../../dtos/res/user.req.dto';
+import { CreateUserDto, LoginDto } from '../../dtos/req/user.dto';
+import { UserVerifyCodeDto } from '../../dtos/req/code.dto';
+import { UpdateDto } from '../../dtos/req/profile.dto';
+import { ResponseInterceptor } from '../../../common/interceptor/response.interceptor';
 
 @Controller('api/auth/user')
 export class UserController {

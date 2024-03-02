@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PostRepository } from '../repositories/post.repository';
-import { ProfileRepository } from 'src/auth/repositories/profile.repository';
-import { FileService } from 'src/file/services/file.service';
+import { ProfileRepository } from '../../auth/repositories/profile.repository';
+import { FileService } from '../../file/services/file.service';
 import { CreatePostReqDto, UpdatePostReqDto } from '../dtos/req/post.dto';
-import { UploadFile } from 'src/file/dtos/req/file.dto.req';
+import { UploadFile } from '../../file/dtos/req/file.dto.req';
 import { PostContent } from '../entities/post.entity';
-import { Profile } from 'src/auth/entities/user/profile.entity';
+import { Profile } from '../../auth/entities/profile.entity';
 import { PaginationReqDto } from '../dtos/req/pagination.dto';
 import { PostResDto } from '../dtos/res/post.res.dto';
 import { plainToClass } from 'class-transformer';

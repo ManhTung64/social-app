@@ -1,10 +1,10 @@
-import { BaseRepository } from "src/common/repository.common";
+import { BaseRepository } from "../../common/repository.common";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Group } from "../entities/group.entity";
 import { CreateGroup } from "../dtos/req/group.dto";
-import { Profile } from "src/auth/entities/user/profile.entity";
+import { Profile } from "../../auth/entities/profile.entity";
 
 @Injectable()
 export class GroupRepository extends BaseRepository<Group>{

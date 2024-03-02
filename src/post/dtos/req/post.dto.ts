@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsOptional, MinLength } from "class-validator"
-import { Profile } from "src/auth/entities/user/profile.entity"
-import { FileInfo } from "src/post/entities/post.entity"
+import { Profile } from "../../../auth/entities/profile.entity"
+import { FileInfo } from "../../../post/entities/post.entity"
 
 export class CreatePostReqDto{
     @IsNotEmpty()

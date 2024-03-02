@@ -1,4 +1,4 @@
-import { Profile } from "src/auth/entities/user/profile.entity";
+import { Profile } from "../../auth/entities/profile.entity";
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Comment } from "./comment.entity";
 

@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { GroupRepository } from '../repositories/group.repository';
-import { ProfileRepository } from 'src/auth/repositories/profile.repository';
+import { ProfileRepository } from '../../auth/repositories/profile.repository';
 import { CreateGroup } from '../dtos/req/group.dto';
 import { Group } from '../entities/group.entity';
-import { Profile } from 'src/auth/entities/user/profile.entity';
+import { Profile } from '../../auth/entities/profile.entity';
 import { AddMember, RemoveMember } from '../dtos/req/member.dto';
 
 @Injectable()

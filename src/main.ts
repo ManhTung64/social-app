@@ -10,8 +10,8 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors();
   app.useGlobalInterceptors(new ResponseInterceptor())
-  app.useGlobalPipes(new ValidationPipe({
-    errorHttpStatusCode: HttpStatus.BAD_REQUEST}));
+  // app.useGlobalPipes(new ValidationPipe({
+  //   errorHttpStatusCode: HttpStatus.BAD_REQUEST}));
   app.useGlobalFilters(new ServerErrorExceptionFilter());
   await app.listen(3000);
 }

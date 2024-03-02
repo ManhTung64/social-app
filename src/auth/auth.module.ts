@@ -9,11 +9,11 @@ import { UserService } from './services/user.service';
 import { PasswordService } from './services/password.service';
 import { CodeService } from './services/code.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user/user.entity';
-import { Profile } from './entities/user/profile.entity';
+import { User } from './entities/user.entity';
+import { Profile } from './entities/profile.entity';
 import { BullModule } from '@nestjs/bull';
-import { FileModule } from 'src/file/file.module';
-import { MailModule } from 'src/mail/mail.module';
+import { FileModule } from '../file/file.module';
+import { MailModule } from '../mail/mail.module';
 import { MailConsumer } from './consumer/mail.consumer';
 import { JwtModule } from '@nestjs/jwt';
 @Module({

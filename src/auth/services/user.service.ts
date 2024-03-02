@@ -7,13 +7,13 @@ import { UserRepository } from '../repositories/user.repository';
 import { PasswordService } from './password.service';
 import { ProfileService } from './profile.service';
 import { AuthService } from './auth.service';
-import { User } from '../entities/user/user.entity';
-import { Profile } from '../entities/user/profile.entity';
+import { User } from '../entities/user.entity';
+import { Profile } from '../entities/profile.entity';
 import { UserDto, UserTokenDto } from '../dtos/res/user.req.dto';
 import { CreateUserDto, LoginDto } from '../dtos/req/user.dto';
 import { UserVerifyCodeDto } from '../dtos/req/code.dto';
 import { UpdateDto } from '../dtos/req/profile.dto';
-import { MailCode } from 'src/mail/dtos/mail.dto';
+import { MailCode } from '../../mail/dtos/mail.dto';
 
 @Injectable()
 export class UserService {

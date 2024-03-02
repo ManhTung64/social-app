@@ -22,23 +22,11 @@ export class CacheInterceptor implements NestInterceptor {
     const cachedValue = await redis.get(cacheKey);
 
     if (cachedValue) {
-      const response = context.switchToHttp().getResponse();
-      response.status(HttpStatus.OK).json(JSON.parse(cachedValue))
-      return of(response);
+      context.switchToHttp().getResponse().status(HttpStatus.OK).json({data: JSON.parse(cachedValue) });
     } else {
       return next.handle().pipe(
         tap(async data => {
-          let responseText = data._header
-          const dataStartIndex = responseText.indexOf('data: ');
-          if (dataStartIndex === -1) {
-            return response
-          }
-          let dataEndIndex = responseText.indexOf('\r\n', dataStartIndex + 5);
-          if (dataEndIndex === -1) {
-            dataEndIndex = responseText.length;
-          }
-          const jsonData = responseText.substring(dataStartIndex + 4, dataEndIndex);
-          await redis.set(cacheKey, '{"data"' + jsonData + '}', 'EX', 5);
+          await redis.set(cacheKey, JSON.stringify(data), 'EX', 5);
         })
       );
     }

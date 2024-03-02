@@ -30,9 +30,9 @@ import { AppGateway } from './socket-gateway/event.gateway';
     GroupModule,
     MailModule,
     SchedulingModule,
-    FileModule
+    FileModule,AppGateway
   ],
   controllers: [],
-  providers: [AppGateway],
+  providers: [],
 })
 export class AppModule {}
