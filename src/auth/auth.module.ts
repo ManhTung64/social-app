@@ -16,6 +16,7 @@ import { FileModule } from '../file/file.module';
 import { MailModule } from '../mail/mail.module';
 import { MailConsumer } from './consumer/mail.consumer';
 import { JwtModule } from '@nestjs/jwt';
+import { GoogleStrategy } from './strategy/google.strategy';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Profile]),
@@ -42,7 +43,8 @@ import { JwtModule } from '@nestjs/jwt';
     UserService,
     PasswordService,
     CodeService,
-    MailConsumer
+    MailConsumer,
+    GoogleStrategy
   ],
   exports: [
     ProfileRepository, 

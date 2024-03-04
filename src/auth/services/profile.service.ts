@@ -14,6 +14,10 @@ export class ProfileService {
         if (!user.id) throw new BadRequestException()
         return await this.profileRepository.createDefault(user, this.fileService.getDefaulAvatar())
     }
+    public async createAppProfile(user: User, name:string, avatar:string): Promise<Profile> {
+        if (!user.id) throw new BadRequestException()
+        return await this.profileRepository.createAppProfile(user, name, avatar)
+    }
     public async update(currentProfile:Profile, update: UpdateDto): Promise<Profile> {
         if (update.avatar) currentProfile.avatar = await this.fileService.uploadAvatar(update.avatar)
         currentProfile = {

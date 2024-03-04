@@ -7,13 +7,10 @@ import { AuthenticationGuard } from '../../../common/guards/auth.guard';
 import { RolesGuard } from '../../../common/guards/role.guard';
 import { Role, Roles } from '../../../common/guards/role.decorator';
 import { CacheInterceptor } from '../../../common/interceptor/cache.interceptor';
-import { User } from '../../entities/user.entity';
-import { Profile } from '../../entities/profile.entity';
-import { UserDto, UserTokenDto } from '../../dtos/res/user.req.dto';
 import { CreateUserDto, LoginDto } from '../../dtos/req/user.dto';
 import { UserVerifyCodeDto } from '../../dtos/req/code.dto';
-import { UpdateDto } from '../../dtos/req/profile.dto';
 import { ResponseInterceptor } from '../../../common/interceptor/response.interceptor';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('api/auth/user')
 export class UserController {
@@ -31,7 +28,7 @@ export class UserController {
     @UseGuards(AuthenticationGuard)
     async getOneWithProfile(
         @Req() req: Request) {
-        return await this.userService.getUserWithProfile(req['user'].username)
+        return await this.userService.getUserWithProfile(req['auth'].accountId)
     }
     @Post('/addnew')
     async createNewUser(
@@ -52,13 +49,22 @@ export class UserController {
         @Body() loginInfo: LoginDto) {
         return await this.userService.login(loginInfo)
     }
+    @Get()
+    @UseGuards(AuthGuard('google'))
+    async googleAuth(@Req() req:Request) {}
+  
+    @Get('google/callback')
+    @UseGuards(AuthGuard('google'))
+    googleAuthRedirect(@Req() req:Request) {
+      return this.userService.loginWithStategy(req.user[0])
+    }
     @Patch('verify')
     @UseGuards(AuthenticationGuard)
     async verifyUser(
         @Req() req: Request,
         @Body() body: UserVerifyCodeDto
     ) {
-        body.userId = req['user'].userId
+        body.userId = req['auth'].accountId
         return await this.userService.verifyUser(body)
     }
     @Post('/uploadmanyfile')

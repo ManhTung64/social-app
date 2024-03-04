@@ -13,6 +13,9 @@ export class ProfileRepository extends BaseRepository<Profile>{
     public async createDefault(user: User, avatar:string): Promise<Profile> {
         return await this.profileRepository.save(this.profileRepository.create({ name: 'new-user', user: user, avatar:avatar }))
     }
+    public async createAppProfile(user: User, name:string, avatar:string): Promise<Profile> {
+        return await this.profileRepository.save(this.profileRepository.create({ name, user, avatar }))
+    }
     public async updateProfile(profile: any): Promise<UpdateResult> {
         return await this.profileRepository.update(profile.id, { ...profile })
     }

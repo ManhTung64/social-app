@@ -30,7 +30,7 @@ export class PostController {
         ) files: Express.Multer.File[],
         @Req() req: Request,
         @Body() post: CreatePostReqDto) {
-        post.userId = req['user'].accountId
+        post.userId = req['auth'].accountId
         return await this.postService.create(post, files)
     }
     @Patch('update')
@@ -39,7 +39,7 @@ export class PostController {
     async update(
         @Req() req: Request, 
         @Body() post: UpdatePostReqDto) {
-        post.userId = req['user'].accountId
+        post.userId = req['auth'].accountId
         return await this.postService.update(post)
     }
     @Get('getbyuser/:id')

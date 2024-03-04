@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
 import { User } from '../entities/user.entity';
 import { Profile } from '../entities/profile.entity';
 import { UserDto, UserTokenDto } from '../dtos/res/user.req.dto';
-import { CreateUserDto, LoginDto } from '../dtos/req/user.dto';
+import { CreateUserAppDto, CreateUserDto, LoginDto, LoginWithGoogleReqDto } from '../dtos/req/user.dto';
 import { UserVerifyCodeDto } from '../dtos/req/code.dto';
 import { UpdateDto } from '../dtos/req/profile.dto';
 import { MailCode } from '../../mail/dtos/mail.dto';
@@ -51,6 +51,16 @@ export class UserService {
         await this.userRepository.update(newUser, profile)
         return plainToClass(UserDto,newUser)
     }
+    public async createNewAppUser (createUserDto: CreateUserAppDto): Promise<UserDto>{
+        const newUser: User = await this.userRepository.createNew(createUserDto)
+        //queue send mail verify
+        const mailInformation:MailCode = {to:createUserDto.username, userId:newUser.id.toString()}
+        await this.queue.add('send-code',mailInformation,{removeOnComplete:true})
+        // create default profile with null information
+        const profile: Profile = await this.profileService.createAppProfile(newUser,createUserDto.name,createUserDto.avatar)
+        await this.userRepository.update(newUser, profile)
+        return plainToClass(UserDto,newUser)
+    }
     public async verifyUser (userVerifyCode:UserVerifyCodeDto):Promise<boolean>{
         const user:User = await this.userRepository.findOneById(parseInt(userVerifyCode.userId))
         // user not found or active user => reject
@@ -73,6 +83,15 @@ export class UserService {
         // return with token
         const userInfo:UserTokenDto = plainToClass(UserTokenDto,user)
         userInfo.token = await this.authService.createToken(user)
+        return userInfo
+    }
+    public async loginWithStategy(loginDto: LoginWithGoogleReqDto): Promise<UserTokenDto> {
+        // check exsited
+        let user: User = await this.userRepository.findOneByUsername(loginDto.email)
+        if (!user) var appUser:UserDto = await this.createNewAppUser(plainToClass(CreateUserAppDto,loginDto))
+        // return with token
+        const userInfo:UserTokenDto = plainToClass(UserTokenDto, appUser)
+        userInfo.token = await this.authService.createToken(plainToClass(User, appUser))
         return userInfo
     }
     public async updateProfile(updateDto: UpdateDto): Promise<Profile> {

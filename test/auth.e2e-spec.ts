@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-describe('AuthController (e2e)', () => {
+describe('AuthController & PostController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {

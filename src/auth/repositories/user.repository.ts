@@ -4,14 +4,14 @@ import { BaseRepository } from "../../common/repository.common";
 import { LessThan, Repository} from "typeorm";
 import { User } from "../entities/user.entity";
 import { Profile } from "../entities/profile.entity";
-import { CreateUserDto } from "../dtos/req/user.dto";
+import { CreateUserAppDto, CreateUserDto } from "../dtos/req/user.dto";
 
 @Injectable()
 export class UserRepository extends BaseRepository<User>{
     constructor(@InjectRepository(User) private userRepository: Repository<User>) {
         super(userRepository)
     }
-    public async createNew(createUserDto: CreateUserDto): Promise<User> {
+    public async createNew(createUserDto: CreateUserDto | CreateUserAppDto): Promise<User> {
         return await this.userRepository.save(this.userRepository.create({ ...createUserDto, createAt: new Date() }))
     }
     public async findOneByUsername(inputUsername: string): Promise<User> {

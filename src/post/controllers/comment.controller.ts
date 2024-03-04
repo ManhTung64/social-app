@@ -19,7 +19,7 @@ export class CommentController {
         @Req() req: Request,
         @Body() body: CreateCommentReqDto
     ){
-        body.userId = req['user'].userId
+        body.userId = req['auth'].userId
         return await this.commentService.addNew(body)
     }
     @Patch('update')
@@ -29,7 +29,7 @@ export class CommentController {
         @Req() req: Request,
         @Body() body: UpdateCommentReqDto
     ){
-        body.userId = req['user'].userId
+        body.userId = req['auth'].userId
         return await this.commentService.update(body)
     }
     @Delete(':id')
@@ -39,7 +39,7 @@ export class CommentController {
         @Req() req: Request,
         @Param('id', new ParseIntPipe()) id:number
     ){
-        const deleteReq:DeleteCommentReqDto = {id,userId:req['user'].userId}
+        const deleteReq:DeleteCommentReqDto = {id,userId:req['auth'].userId}
         return await this.commentService.delete(deleteReq)
     }
 }

@@ -14,7 +14,7 @@ export class ProfileController {
     @UseGuards(AuthenticationGuard)
     async getOneWithProfile (
         @Req() req:Request){
-            return await this.userService.getUserWithProfile(req['user'].username)
+            return await this.userService.getUserWithProfile(req['auth'].username)
     }
     @Post('/updateprofile')
     @UseGuards(AuthenticationGuard)
@@ -30,7 +30,7 @@ export class ProfileController {
     ) file:Express.Multer.File, 
     @Req() req:Request,
     @Body() updateProfile:UpdateDto){
-        updateProfile.id = req['user'].userId
+        updateProfile.id = req['auth'].accountId
         if (file) updateProfile.avatar = file
         return await this.userService.updateProfile(updateProfile)
     }
