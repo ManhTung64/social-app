@@ -49,7 +49,8 @@ import { GoogleStrategy } from './strategy/google.strategy';
   exports: [
     ProfileRepository, 
     UserRepository, 
-    CodeService
+    CodeService,
+    AuthService
   ]
 })
 export class AuthModule { }

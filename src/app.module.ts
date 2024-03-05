@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GroupModule } from './group/group.module';
 import { SchedulingModule } from './scheduling/scheduling.module';
 import { AppGateway } from './socket-gateway/event.gateway';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { AppGateway } from './socket-gateway/event.gateway';
     GroupModule,
     MailModule,
     SchedulingModule,
-    FileModule,AppGateway
+    FileModule,AppGateway, EventsModule
   ],
   controllers: [],
   providers: [],
