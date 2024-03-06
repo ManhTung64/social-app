@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class UpdateMessageTable1709721025374 implements MigrationInterface {
-    name = 'UpdateMessageTable1709721025374'
+export class UpdateMessageTable1709731053823 implements MigrationInterface {
+    name = 'UpdateMessageTable1709731053823'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE "member_group" DROP CONSTRAINT "FK_000589167f4dbdc93a9a5b09a19"`);

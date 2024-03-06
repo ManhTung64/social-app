@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
-import { StateEventsGateway } from './gateways/state-events.gateway';
+import { ChatEventsGateway } from './gateways/chat-events.gateway';
 import { AuthModule } from 'src/auth/auth.module';
+import { MessageModule } from 'src/message/message.module';
 
 
 @Module({
   imports:[
-    AuthModule
+    AuthModule,
+    MessageModule
   ],
   providers: [
-    StateEventsGateway,
+    ChatEventsGateway,
   ]
 })
 export class EventsModule {}

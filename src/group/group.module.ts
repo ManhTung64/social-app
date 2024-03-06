@@ -13,6 +13,6 @@ import { GroupRepository } from './repositories/group.repository';
     ],
     controllers: [GroupController],
     providers: [GroupService, GroupRepository],
-    exports:[GroupService]
+    exports:[GroupService, GroupRepository]
   })
   export class GroupModule {}
