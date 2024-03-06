@@ -1,7 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MessageService } from './services/message.service';
+import { MessageRepository } from './repositories/message.repository';
 
 @Module({
-  providers: [MessageService]
+  providers: [
+    MessageService,
+    MessageRepository
+  ]
 })
 export class MessageModule {}

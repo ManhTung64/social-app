@@ -22,12 +22,12 @@ export class MessageEntity{
     group:Group
 
     @ManyToOne(()=>Profile,user=>user.id,{cascade:true})
-    @JoinColumn({name:'first_user_id'})
-    firstUser:Profile
+    @JoinColumn({name:'sender_id'})
+    sender:Profile
 
     @ManyToOne(()=>Profile,user=>user.id,{cascade:true, nullable:true})
-    @JoinColumn({name:'second_user_id'})
-    secondUser:Profile
+    @JoinColumn({name:'receiver_user_id'})
+    receiver:Profile
 
     @OneToOne(()=>MessageEntity,message=>message.id,{cascade:true, nullable:true})
     @JoinColumn({name:'reply_to_id'})
