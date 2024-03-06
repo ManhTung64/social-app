@@ -11,6 +11,7 @@ import { GroupModule } from './group/group.module';
 import { SchedulingModule } from './scheduling/scheduling.module';
 import { AppGateway } from './socket-gateway/event.gateway';
 import { EventsModule } from './events/events.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { EventsModule } from './events/events.module';
     GroupModule,
     MailModule,
     SchedulingModule,
-    FileModule,AppGateway, EventsModule
+    FileModule,AppGateway, EventsModule, MessageModule
   ],
   controllers: [],
   providers: [],
