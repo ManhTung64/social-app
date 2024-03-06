@@ -20,7 +20,8 @@ export class AuthService {
         const tokenData:any = {
             accountId: account.id,
             username: account.username,
-            role:account.role
+            role:account.role,
+            userId:account.profile.id
         }
         return await this.service.signAsync(tokenData)
     }

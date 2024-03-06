@@ -11,7 +11,7 @@ export class FindUserToUserMessageReqDto{
     receiver:number
 }
 export class CreateMessageReqDto{
-    @IsNotEmpty()
+    @IsOptional()
     sender:number
     @IsNotEmpty()
     receiver:number

@@ -11,20 +11,15 @@ import { GroupModule } from './group/group.module';
 import { SchedulingModule } from './scheduling/scheduling.module';
 import { AppGateway } from './socket-gateway/event.gateway';
 import { EventsModule } from './events/events.module';
+import redisConfig from './configuration/redis.config'
 import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
     BullModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (config: ConfigService) => ({
-        redis: {
-          host: config.get('REDIS_HOST'),
-          port: config.get('REDIS_PORT'),
-          password: config.get('REDIS_PASSWORD'),
-        },
+      useFactory: async () => ({
+        redis: redisConfig,
       }),
-      inject: [ConfigService],
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,

@@ -20,7 +20,7 @@ export class ProfileRepository extends BaseRepository<Profile>{
         return await this.profileRepository.update(profile.id, { ...profile })
     }
     public async findOneById(userId:number): Promise<Profile> {
-        return await this.profileRepository.findOne({ where: { user: {id:userId} } })
+        return await this.profileRepository.findOne({ where: {id:userId} })
     }
     public async addGroup(profile:Profile): Promise<Profile> {
         return await this.profileRepository.save(profile)

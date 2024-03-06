@@ -4,6 +4,8 @@ import { BaseRepository } from "src/common/repository.common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateU2UMessageData, CreateMessageReqDto, FindUserToUserMessageReqDto } from "../dtos/userToUserMessage.dto";
+import { skip, take } from "rxjs";
+import { LimitU2UMessageReqDto } from "../dtos/req/pagination.dto";
 
 @Injectable()
 export class MessageRepository extends BaseRepository<MessageEntity>{
@@ -18,11 +20,29 @@ export class MessageRepository extends BaseRepository<MessageEntity>{
             ]
         })
     }
-    public async addNew (createNewMessage:CreateU2UMessageData):Promise<MessageEntity>{
+    public async addNew(createNewMessage: CreateU2UMessageData): Promise<MessageEntity> {
         return await this.messageRepository.save(createNewMessage)
     }
-    public async findOneById(id:number): Promise<MessageEntity> {
+    public async findOneById(id: number): Promise<MessageEntity> {
         return await this.messageRepository.findOne({ where: { id } })
+    }
+    public async getU2UMessage(getMessage: LimitU2UMessageReqDto) {
+        return await this.messageRepository.find({
+            where: [
+                {
+                    sender: { id: getMessage.sender_id },
+                    receiver: { id: getMessage.receiver_id }
+                },
+                {
+                    sender: { id: getMessage.receiver_id },
+                    receiver: { id: getMessage.sender_id }
+                }
+            ], relations: ['sender', 'receiver', 'replyTo'],
+            order: { createAt: 'DESC' },
+            skip: (getMessage.page - 1) * getMessage.limit,
+            take: getMessage.limit
+        }
+        )
     }
     // public async isMemberInGroup(groupId: number, memberId: number): Promise<Group> {
     //     const group:Group = await this.groupRepository.findOneOrFail({ where: { id: groupId }, relations: ['profile'] });

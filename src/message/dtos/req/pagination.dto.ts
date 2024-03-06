@@ -1,0 +1,27 @@
+import { IsInt, IsNotEmpty, IsOptional, Min } from "class-validator";
+import { Profile } from "src/auth/entities/profile.entity";
+
+class LimitMessageReqDto {
+    private MIN_PAGE:number = 1
+    private MIN_LIMIT:number = 10
+    @IsOptional()
+    @IsInt()
+    @Min(1)
+    page: number = this.MIN_PAGE;
+
+    @IsOptional()
+    @IsInt()
+    @Min(1)
+    limit: number = this.MIN_LIMIT;
+}
+
+export class LimitU2UMessageReqDto extends LimitMessageReqDto{
+    @IsOptional()
+    sender_id:number
+    @IsNotEmpty()
+    receiver_id:number
+    @IsOptional()
+    sender:Profile
+    @IsOptional()
+    receiver:Profile
+}

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BaseRepository } from "../../common/repository.common";
-import { LessThan, Repository} from "typeorm";
+import { LessThan, Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { Profile } from "../entities/profile.entity";
 import { CreateUserAppDto, CreateUserDto } from "../dtos/req/user.dto";
@@ -15,23 +15,22 @@ export class UserRepository extends BaseRepository<User>{
         return await this.userRepository.save(this.userRepository.create({ ...createUserDto, createAt: new Date() }))
     }
     public async findOneByUsername(inputUsername: string): Promise<User> {
-        return await this.userRepository.findOneBy(
-            { username: inputUsername })
+        return await this.userRepository.findOne({ where: { username: inputUsername }, relations: ['profile'] })
     }
     public async findOneById(id: number): Promise<User> {
-        return await this.userRepository.findOne({ where: { id: id } })
+        return await this.userRepository.findOne({ where: { id: id }, relations: ['profile'] })
     }
     public async update(user: User, updateDto: Profile): Promise<Profile> {
         user.profile = { ...user.profile, name: updateDto.name, phonenumber: updateDto.phonenumber, dob: updateDto.dob }
         await this.save(user)
         return user.profile
     }
-    public async save(user:User):Promise<User>{
+    public async save(user: User): Promise<User> {
         await this.userRepository.save(user)
         return user
     }
     public async findAllNewUser(): Promise<User[]> {
-        return await this.userRepository.find({where:{createAt:LessThan(new Date())}})
+        return await this.userRepository.find({ where: { createAt: LessThan(new Date()) } })
     }
     public async joinWithProfileAndFind(user: User): Promise<User> {
         // return await this.userRepository.findOne({where:{id:user.id},relations:['profile']})

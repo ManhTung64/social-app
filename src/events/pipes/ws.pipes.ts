@@ -9,7 +9,6 @@ import { WsException } from '@nestjs/websockets';
 @Injectable()
 export class SocketTransformPipe implements PipeTransform<any, any> {
   async transform(value: Socket, metadata: ArgumentMetadata): Promise<any> {
-
     const object = plainToClass(metadata.metatype, value);
 
     const errors: ValidationError[] = await validate(object);
@@ -18,7 +17,7 @@ export class SocketTransformPipe implements PipeTransform<any, any> {
       const errorMessage:string[] = this.buildErrorMessage(errors);
       throw new WsException(errorMessage)
     }
-    return null
+    return object
   }
 
   private buildErrorMessage(errors: ValidationError[]): string[] {
