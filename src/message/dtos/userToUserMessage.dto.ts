@@ -21,6 +21,8 @@ export class CreateMessageReqDto{
     reply_id: number
     @IsOptional()
     files:FileInfo[]
+    @IsOptional()
+    uploadFiles:string[]
 }
 export class CreateU2UMessageData{
     sender:Profile

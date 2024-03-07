@@ -64,9 +64,8 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const data: CreateU2UMessageResDto = await this.messageService.addNewU2UMessage(createMessage)
     client
       .emit('return-add-u2u-message', data)
-
-    this.findOtherUserInConservation(createMessage.receiver)
-      .emit('return-add-u2u-message', data)
+    const receiver_client:Socket = this.findOtherUserInConservation(createMessage.receiver)
+    if (receiver_client) receiver_client.emit('return-add-u2u-message', data)
   }
   private findOtherUserInConservation(id: number): Socket {
     if (this.listUsers.has(id.toString())) return this.listClients.get(this.listUsers.get(id.toString()))

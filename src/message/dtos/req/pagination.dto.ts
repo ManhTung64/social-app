@@ -15,6 +15,10 @@ class LimitMessageReqDto {
     limit: number = this.MIN_LIMIT;
 }
 
+export class LimitU2UConservationReqDto extends LimitMessageReqDto{
+    @IsOptional()
+    sender_id: number
+}
 export class LimitU2UMessageReqDto extends LimitMessageReqDto{
     @IsOptional()
     sender_id:number

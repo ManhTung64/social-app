@@ -20,3 +20,5 @@ export class CreateU2UMessageResDto{
     @Expose()
     replyTo:MessageEntity
 }
+@Exclude()
+export class U2UMessageResDto extends CreateU2UMessageResDto{}
