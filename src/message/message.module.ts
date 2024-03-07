@@ -23,12 +23,6 @@ import { FileModule } from 'src/file/file.module';
   providers: [
     MessageService,
     MessageRepository,
-    {
-      provide: 'WRITER_REDIS_CLIENT',
-      useFactory: (): Redis => {
-        return new Redis(redisConfig);
-      },
-    },
   ],
   exports:[
     MessageService

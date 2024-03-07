@@ -1,5 +1,6 @@
 import { IsInt, IsNotEmpty, IsOptional, Min } from "class-validator";
 import { Profile } from "src/auth/entities/profile.entity";
+import { Group } from "src/group/entities/group.entity";
 
 class LimitMessageReqDto {
     private MIN_PAGE:number = 1
@@ -15,9 +16,11 @@ class LimitMessageReqDto {
     limit: number = this.MIN_LIMIT;
 }
 
-export class LimitU2UConservationReqDto extends LimitMessageReqDto{
+export class LimitConservationReqDto extends LimitMessageReqDto{
     @IsOptional()
     sender_id: number
+    @IsOptional()
+    group_id:number
 }
 export class LimitU2UMessageReqDto extends LimitMessageReqDto{
     @IsOptional()
@@ -28,4 +31,14 @@ export class LimitU2UMessageReqDto extends LimitMessageReqDto{
     sender:Profile
     @IsOptional()
     receiver:Profile
+}
+export class LimitGroupConservationReqDto extends LimitMessageReqDto{
+    @IsOptional()
+    sender_id: number
+}
+export class LimitGroupMessageReqDto extends LimitMessageReqDto{
+    @IsOptional()
+    sender_id:number
+    @IsNotEmpty()
+    group_id:number
 }

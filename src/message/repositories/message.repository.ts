@@ -3,22 +3,23 @@ import { MessageEntity } from "../entities/message.entity";
 import { BaseRepository } from "src/common/repository.common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { LessThanOrEqual, Repository } from "typeorm";
-import { CreateU2UMessageData, CreateMessageReqDto, FindUserToUserMessageReqDto } from "../dtos/userToUserMessage.dto";
-import { LimitU2UConservationReqDto, LimitU2UMessageReqDto } from "../dtos/req/pagination.dto";
+import { CreateU2UMessageData, CreateMessageReqDto, FindUserToUserMessageReqDto } from "../dtos/req/userToUserMessage.dto";
+import { LimitGroupMessageReqDto, LimitConservationReqDto, LimitU2UMessageReqDto } from "../dtos/req/pagination.dto";
+import { CreateGroupMessageData } from "../dtos/req/groupMessage.req.dto";
 
 @Injectable()
 export class MessageRepository extends BaseRepository<MessageEntity>{
     constructor(@InjectRepository(MessageEntity) private messageRepository: Repository<MessageEntity>) {
         super(messageRepository)
     }
-    public async findListConservation(conditionReq:LimitU2UConservationReqDto): Promise<MessageEntity[]> {
-        console.log(conditionReq)
+    public async findListConservation(conditionReq: LimitConservationReqDto): Promise<MessageEntity[]> {
         const listMessage: MessageEntity[] = await this.messageRepository.find({
             where: [
                 { sender: { id: conditionReq.sender_id } },
-                { receiver: { id: conditionReq.sender_id } }
+                { receiver: { id: conditionReq.sender_id } },
+                { group: { id: conditionReq.group_id } }
             ],
-            relations: ['sender', 'receiver', 'replyTo'],
+            relations: ['sender', 'receiver', 'replyTo', 'group'],
             order: { createAt: 'DESC' },
             skip: (conditionReq.page - 1) * conditionReq.limit * 100,
             take: conditionReq.limit * 10
@@ -34,7 +35,7 @@ export class MessageRepository extends BaseRepository<MessageEntity>{
         })
         return listConservation
     }
-    public async addNew(createNewMessage: CreateU2UMessageData): Promise<MessageEntity> {
+    public async addNew(createNewMessage: CreateU2UMessageData | CreateGroupMessageData): Promise<MessageEntity> {
         return await this.messageRepository.save(createNewMessage)
     }
     public async findOneById(id: number): Promise<MessageEntity> {
@@ -52,6 +53,19 @@ export class MessageRepository extends BaseRepository<MessageEntity>{
                     receiver: { id: getMessage.sender_id }
                 }
             ], relations: ['sender', 'receiver', 'replyTo'],
+            order: { createAt: 'DESC' },
+            skip: (getMessage.page - 1) * getMessage.limit,
+            take: getMessage.limit
+        }
+        )
+    }
+    public async getGroupMessage(getMessage: LimitGroupMessageReqDto) {
+        return await this.messageRepository.find({
+            where:
+            {
+                group: { id: getMessage.group_id }
+            },
+            relations: ['sender', 'group', 'replyTo'],
             order: { createAt: 'DESC' },
             skip: (getMessage.page - 1) * getMessage.limit,
             take: getMessage.limit

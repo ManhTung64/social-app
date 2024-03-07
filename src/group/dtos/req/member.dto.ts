@@ -5,6 +5,8 @@ export class AddMember{
     memberId:number
     @IsNotEmpty()
     groupId:number
+    @IsOptional()
+    creator:number
 }
 export class RemoveMember extends AddMember{
 

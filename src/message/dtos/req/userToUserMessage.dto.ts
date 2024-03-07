@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsOptional } from "class-validator";
 import { Profile } from "src/auth/entities/profile.entity";
 import { FileInfo } from "src/post/entities/post.entity";
-import { MessageEntity } from "../entities/message.entity";
+import { MessageEntity } from "../../entities/message.entity";
 import { Group } from "src/group/entities/group.entity";
 
 export class FindUserToUserMessageReqDto{

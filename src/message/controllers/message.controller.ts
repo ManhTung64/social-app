@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Req, UseGuards } from "@nestjs/common";
 import { MessageService } from "../services/message.service";
 import { AuthenticationGuard } from "src/common/guards/auth.guard";
-import { LimitU2UConservationReqDto } from "../dtos/req/pagination.dto";
+import { LimitConservationReqDto } from "../dtos/req/pagination.dto";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 
@@ -12,10 +12,10 @@ export class MessageController {
     @UseGuards(AuthenticationGuard)
     async getListConservation(
         @Req() req: Request,
-        @Body() body: LimitU2UConservationReqDto
+        @Body() body: LimitConservationReqDto
     ) {
-        body = plainToClass(LimitU2UConservationReqDto, body)
+        body = plainToClass(LimitConservationReqDto, body)
         body.sender_id = req['auth'].userId
-        return await this.messageService.getU2UConservation(body)
+        return await this.messageService.getConservation(body)
     }
 }
