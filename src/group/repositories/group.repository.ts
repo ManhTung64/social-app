@@ -12,25 +12,28 @@ export class GroupRepository extends BaseRepository<Group>{
         super(groupRepository)
     }
     public async createNew(newGroup: CreateGroup): Promise<Group> {
-        return await this.groupRepository.save({ ...newGroup, creator:newGroup.creator })
+        return await this.groupRepository.save({ ...newGroup, creator: newGroup.creator })
     }
-    public async getListByCreatorId(id:number): Promise<Group[]> {
-        return await this.groupRepository.find({where:{creator:{id:id}}})
+    public async getListByCreatorId(id: number): Promise<Group[]> {
+        return await this.groupRepository.find({ where: { creator: { id: id } } })
     }
     public async findOneByName(name: string, user: Profile): Promise<Group> {
         return await this.groupRepository.findOne({ where: { name: name, creator: user } })
     }
-    public async isMemberInGroup(groupId: number, memberId: number): Promise<Group> {
-        const group:Group = await this.groupRepository.findOneOrFail({ where: { id: groupId }, relations: ['profile'] });
-        return !!group.members.find(member => member.id === memberId) ? group:null
+    public async isMemberInGroup(groupId: number, memberId: number): Promise<[Group, boolean]> {
+        const group: Group = await this.groupRepository.findOneOrFail({ where: { id: groupId }, relations: ['members'] });
+        return group.members.find(member => member.id == memberId) ? [group, true] : [group, false]
     }
-    public async isCreator (groupId:number, creator: number):Promise<Group>{
-        return await this.groupRepository.findOne({where:[
-            {id:groupId},
-            {creator:{id:creator}}
-        ]})
+    public async isCreator(groupId: number, creator: number): Promise<Group> {
+        return await this.groupRepository.findOne({
+            where:
+            {
+                id: groupId,
+                creator: { id: creator }
+            }
+        })
     }
-    public async save(group:Group): Promise<Group> {
+    public async save(group: Group): Promise<Group> {
         return await this.groupRepository.save(group)
     }
 }

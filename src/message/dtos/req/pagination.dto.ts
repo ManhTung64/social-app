@@ -16,11 +16,9 @@ class LimitMessageReqDto {
     limit: number = this.MIN_LIMIT;
 }
 
-export class LimitConservationReqDto extends LimitMessageReqDto{
+export class LimitU2UConservationReqDto extends LimitMessageReqDto{
     @IsOptional()
     sender_id: number
-    @IsOptional()
-    group_id:number
 }
 export class LimitU2UMessageReqDto extends LimitMessageReqDto{
     @IsOptional()
@@ -32,13 +30,12 @@ export class LimitU2UMessageReqDto extends LimitMessageReqDto{
     @IsOptional()
     receiver:Profile
 }
-export class LimitGroupConservationReqDto extends LimitMessageReqDto{
-    @IsOptional()
-    sender_id: number
-}
 export class LimitGroupMessageReqDto extends LimitMessageReqDto{
     @IsOptional()
     sender_id:number
     @IsNotEmpty()
     group_id:number
+}
+export class LimitGroupConservationReqDto extends LimitU2UConservationReqDto{
+    groups:Group[]
 }

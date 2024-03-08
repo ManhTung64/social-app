@@ -53,10 +53,9 @@ export class GroupService {
         if (!profile) throw new WsException("Not found data")
         else if (!creator) throw new WsException('Forrbiden')
         //add new
-        const group: Group = await this.groupRepository.isMemberInGroup(addMember.groupId, addMember.memberId)
-        if (group) throw new WsException('Exsited')
+        const [group, isInGroup]: [Group, boolean] = await this.groupRepository.isMemberInGroup(addMember.groupId, addMember.memberId)
+        if (isInGroup) throw new WsException('Exsited')
         group.members.push(profile)
-        profile.groups.push(group)
         await Promise.all([
             this.groupRepository.save(group),
             this.profileRepository.addGroup(profile)
@@ -72,10 +71,10 @@ export class GroupService {
         if (!profile) throw new WsException("Not found data")
         else if (!creator) throw new WsException('Forrbiden')
         //check ex of user in gr
-        const group: Group = await this.groupRepository.isMemberInGroup(removeMember.groupId, removeMember.memberId)
-        if (!group) throw new WsException('Deleted')
+        const [group, isInGroup]: [Group, boolean] = await this.groupRepository.isMemberInGroup(removeMember.groupId, removeMember.memberId)
+        if (!isInGroup) throw new WsException('Deleted')
 
-        group.members.filter((user) => user.id !== removeMember.memberId)
+        group.members = group.members.filter((user) =>{return user.id != profile.id})
         await this.groupRepository.save(group)
         return profile
     }

@@ -127,8 +127,8 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     data.creator = this.listClients.get(client.id).data.user.userId
     const res: Profile = await this.groupService.removeMember(data)
     if (!res) throw new WebSocketExceptionFilter()
+    this.emitAllMembers(data.groupId,'remove-member-result', res)
     this.updateSocketGroup(data.groupId, client, false)
-    this.emitAllMembers(data.groupId,'add-member-result', res)
   }
   // add new message in group
   @SubscribeMessage('add-group-message')
@@ -150,12 +150,11 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
       .emit('return-get-group-message', data)
   }
   private emitAllMembers (groupId:number, event:string, data:any){
-    this.listGroups.has(groupId.toString())
-    && (
+    if (this.listGroups.has(groupId.toString())){
       this.listGroups.get(groupId.toString()).map((user:Socket)=>{
         user.emit(event, data)
       })
-    )
+    }
   }
   private updateSocketGroup(group_id:number, client:Socket, add:boolean){
     if (this.listGroups.has(group_id.toString())) {
