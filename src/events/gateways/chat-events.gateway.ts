@@ -15,7 +15,7 @@ import { AuthService } from 'src/auth/services/auth.service';
 import { CreateMessageReqDto } from 'src/message/dtos/req/userToUserMessage.dto';
 import { MessageService } from 'src/message/services/message.service';
 import { CreateU2UMessageResDto } from 'src/message/dtos/res/u2u.res.dto';
-import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import { UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WebSocketExceptionFilter } from 'src/socket-gateway/exception-filter/event-gateway.exception';
 import { SocketTransformPipe } from '../pipes/ws.pipes';
 import { LimitGroupMessageReqDto, LimitU2UMessageReqDto } from 'src/message/dtos/req/pagination.dto';
@@ -26,9 +26,11 @@ import { Profile } from 'src/auth/entities/profile.entity';
 import { Group } from 'src/group/entities/group.entity';
 import { CreateGroupMessageReqDto } from 'src/message/dtos/req/groupMessage.req.dto';
 import { GroupMessageResDto } from 'src/message/dtos/res/group.res.dto';
+import { ThrottleGuard } from '../guards/throttle.guard';
 
 @WebSocketGateway({ namespace: 'chat' })
 @UseFilters(WebSocketExceptionFilter)
+@UseGuards(ThrottleGuard)
 export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer() server: Server;

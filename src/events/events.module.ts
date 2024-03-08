@@ -3,6 +3,7 @@ import { ChatEventsGateway } from './gateways/chat-events.gateway';
 import { AuthModule } from 'src/auth/auth.module';
 import { MessageModule } from 'src/message/message.module';
 import { GroupModule } from 'src/group/group.module';
+import { ThrottleGuard } from './guards/throttle.guard';
 
 
 @Module({
@@ -13,6 +14,8 @@ import { GroupModule } from 'src/group/group.module';
   ],
   providers: [
     ChatEventsGateway,
+    ThrottleGuard
   ]
 })
-export class EventsModule {}
+export class EventsModule {
+}
