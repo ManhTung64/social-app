@@ -24,6 +24,12 @@ export class CreateMessageReqDto{
     @IsOptional()
     uploadFiles:string[]
 }
+export class DeleteMessageReqDto{
+    @IsOptional()
+    sender:number
+    @IsNotEmpty()
+    id:number
+}
 export class CreateU2UMessageData{
     sender:Profile
     receiver:Profile

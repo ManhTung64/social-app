@@ -14,6 +14,9 @@ export class MessageEntity{
     @CreateDateColumn()
     createAt:Date
 
+    // @Column({default:false})
+    // pin:boolean
+
     @Column({nullable:true, type:'jsonb'})
     files:FileInfo[]
 

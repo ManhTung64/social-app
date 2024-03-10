@@ -91,4 +91,7 @@ export class MessageRepository extends BaseRepository<MessageEntity>{
         }
         )
     }
+    public async saveChange(message:MessageEntity):Promise<MessageEntity>{
+        return await this.messageRepository.save(message)
+    }
 }

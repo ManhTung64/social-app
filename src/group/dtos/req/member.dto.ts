@@ -11,3 +11,9 @@ export class AddMember{
 export class RemoveMember extends AddMember{
 
 }
+export class OutGroup{
+    @IsOptional()
+    memberId:number
+    @IsNotEmpty()
+    groupId:number
+}

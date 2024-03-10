@@ -20,8 +20,9 @@ export class CreateU2UMessageResDto{
     receiver:Profile
     @Expose()
     replyTo:MessageEntity
-    @Expose()
-    group:Group
+}
+@Exclude()
+export class RemoveU2UMessageResDto extends CreateU2UMessageResDto{
 }
 @Exclude()
 export class MessageResDto extends CreateU2UMessageResDto{}

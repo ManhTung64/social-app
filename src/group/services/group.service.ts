@@ -5,7 +5,7 @@ import { ProfileRepository } from '../../auth/repositories/profile.repository';
 import { CreateGroup } from '../dtos/req/group.dto';
 import { Group } from '../entities/group.entity';
 import { Profile } from '../../auth/entities/profile.entity';
-import { AddMember, RemoveMember } from '../dtos/req/member.dto';
+import { AddMember, OutGroup, RemoveMember } from '../dtos/req/member.dto';
 import { plainToClass } from 'class-transformer';
 import { GroupResDto } from '../dtos/res/group.res.dto';
 
@@ -73,6 +73,19 @@ export class GroupService {
         //check ex of user in gr
         const [group, isInGroup]: [Group, boolean] = await this.groupRepository.isMemberInGroup(removeMember.groupId, removeMember.memberId)
         if (!isInGroup) throw new WsException('Deleted')
+
+        group.members = group.members.filter((user) =>{return user.id != profile.id})
+        await this.groupRepository.save(group)
+        return profile
+    }
+    public async outGroup(outGroup:OutGroup): Promise<Profile> {
+        // check ex user
+        const [profile, [group, isInGroup]]: [Profile, [Group, boolean]] = await Promise.all([
+            this.profileRepository.findOneById(outGroup.memberId),
+            this.groupRepository.isMemberInGroup(outGroup.groupId, outGroup.memberId),
+        ])
+        if (!profile) throw new WsException("Not found data")
+        else if (!isInGroup) throw new WsException('Forrbiden')
 
         group.members = group.members.filter((user) =>{return user.id != profile.id})
         await this.groupRepository.save(group)

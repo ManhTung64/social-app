@@ -3,6 +3,7 @@ import { Profile } from "src/auth/entities/profile.entity"
 import { Group } from "src/group/entities/group.entity"
 import { MessageEntity } from "src/message/entities/message.entity"
 import { FileInfo } from "src/post/entities/post.entity"
+import { DeleteMessageReqDto } from "./userToUserMessage.dto"
 
 export class CreateGroupMessageReqDto{
     @IsOptional()
@@ -29,4 +30,8 @@ export class CreateGroupMessageData{
     replyTo: MessageEntity
     @IsOptional()
     files:FileInfo[]
+}
+export class DeleteGroupMessageReqDto extends DeleteMessageReqDto{
+    @IsNotEmpty()
+    group_id:number
 }
