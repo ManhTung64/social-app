@@ -58,7 +58,14 @@ export class MessageRepository extends BaseRepository<MessageEntity>{
         return await this.messageRepository.save(createNewMessage)
     }
     public async findOneById(id: number): Promise<MessageEntity> {
-        return await this.messageRepository.findOne({ where: { id } })
+        return await this.messageRepository.findOne({
+            where: { id },
+            relations: [
+                'sender',
+                'receiver',
+                'group',
+                'group.creator']
+        })
     }
     public async getU2UMessage(getMessage: LimitU2UMessageReqDto) {
         return await this.messageRepository.find({
@@ -90,8 +97,5 @@ export class MessageRepository extends BaseRepository<MessageEntity>{
             take: getMessage.limit
         }
         )
-    }
-    public async saveChange(message:MessageEntity):Promise<MessageEntity>{
-        return await this.messageRepository.save(message)
     }
 }

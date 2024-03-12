@@ -15,7 +15,7 @@ import { AuthService } from 'src/auth/services/auth.service';
 import { CreateMessageReqDto, DeleteMessageReqDto } from 'src/message/dtos/req/userToUserMessage.dto';
 import { MessageService } from 'src/message/services/message.service';
 import { CreateU2UMessageResDto } from 'src/message/dtos/res/u2u.res.dto';
-import { UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { WebSocketExceptionFilter } from 'src/socket-gateway/exception-filter/event-gateway.exception';
 import { SocketTransformPipe } from '../pipes/ws.pipes';
 import { LimitGroupMessageReqDto, LimitU2UMessageReqDto } from 'src/message/dtos/req/pagination.dto';
@@ -27,6 +27,10 @@ import { Group } from 'src/group/entities/group.entity';
 import { CreateGroupMessageReqDto, DeleteGroupMessageReqDto } from 'src/message/dtos/req/groupMessage.req.dto';
 import { GroupMessageResDto } from 'src/message/dtos/res/group.res.dto';
 import { ThrottleGuard } from '../guards/throttle.guard';
+import { PinGroupConservationReqDto, PinGroupMessageReqDto, PinU2UConservationReqDto, PinU2UMessageReqDto, UnPinGroupMessageReqDto, UnPinU2UMessageReqDto } from 'src/message/dtos/req/pin.req.dto';
+import { PinMessageService } from 'src/message/services/pin.service';
+import { PinGroupMessageResDto, PinU2UMessageResDto } from 'src/message/dtos/res/pin.res.dto';
+import { PinMessageEntity } from 'src/message/entities/pin.entity';
 
 @WebSocketGateway({ namespace: 'chat' })
 @UseFilters(WebSocketExceptionFilter)
@@ -34,15 +38,19 @@ import { ThrottleGuard } from '../guards/throttle.guard';
 export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer() server: Server;
-  private listClients: Map<string, Socket> = new Map() // <socket.id, Socket>
-  private listUsers: Map<string, string> = new Map() // <user id, socket.id>
-  private listGroups: Map<string, Socket[]> = new Map() // <group.id, Socket[]>    
+  private listClients: Map<string, Socket> // <socket.id, Socket>
+  private listUsers: Map<string, string> // <user id, socket.id>
+  private listGroups: Map<string, Socket[]> // <group.id, Socket[]>    
 
   constructor(
     private readonly authService: AuthService,
     private readonly messageService: MessageService,
-    private readonly groupService: GroupService
+    private readonly groupService: GroupService,
+    private readonly pinService: PinMessageService
   ) {
+    this.listClients = new Map()
+    this.listClients = new Map()
+    this.listGroups = new Map()
     new Promise(() => this.createGroupMap())
   }
 
@@ -63,26 +71,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     this.listUsers.delete(client.data.user.userId)
     this.listClients.delete(client.id)
     new Promise(() => this.handleUserInGroup(client, false))
-  }
-  // add or remove user in group
-  private async handleUserInGroup(client: Socket, add: boolean) {
-    const profile: Profile = await this.groupService.getUserWithListGroup(client.data.userId)
-    profile.groups.length > 0
-      && profile.groups.map((group: Group) => {
-        const isMember: boolean = this.listGroups.has(group.id.toString())
-        if (isMember) {
-          let listClients: Socket[] = this.listGroups.get(group.id.toString())
-          // add => push, remove: delete
-          add ? listClients.push(client) : listClients = listClients.filter((c) => { return c.data.userId != client.data.userId })
-          this.listGroups.set(group.id.toString(), listClients)
-        }
-      })
-  }
-  // create group map
-  private async createGroupMap() {
-    const groups: Group[] = await this.groupService.getAllGroups()
-    if (groups.length == 0) return
-    groups.map(group => this.listGroups.set(group.id.toString(), []))
   }
   // add new mesage user to user
   @SubscribeMessage('add-u2u-message')
@@ -108,10 +96,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const receiver_client: Socket = this.findOtherUserInConservation(data.receiver.id)
     if (receiver_client) receiver_client.emit('return-remove-u2u-message', data)
   }
-  private findOtherUserInConservation(id: number): Socket {
-    if (this.listUsers.has(id.toString())) return this.listClients.get(this.listUsers.get(id.toString()))
-    else return null
-  }
   // get list message in conservation user to user
   @SubscribeMessage('get-u2u-message')
   async getMessage(
@@ -121,6 +105,40 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const data: MessageEntity[] = await this.messageService.getU2UMessage(getMessage)
     client
       .emit('return-get-u2u-message', data)
+  }
+  // pin message in u2u conservation
+  @SubscribeMessage('pin-u2u-message')
+  async pinU2UMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) pinMessage: PinU2UMessageReqDto) {
+    pinMessage.sender_id = this.listClients.get(client.id).data.user.userId
+    const data: PinU2UMessageResDto = await this.pinService.pinU2UMessage(pinMessage)
+    client
+      .emit('return-pin-u2u-message', data)
+    const receiver_client: Socket = this.findOtherUserInConservation(data.receiver.id)
+    if (receiver_client) receiver_client.emit('return-pin-u2u-message', data)
+  }
+  // unpin message in u2u conservation
+  @SubscribeMessage('unpin-u2u-message')
+  async unPinU2UMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) unpinMessage: UnPinU2UMessageReqDto) {
+    unpinMessage.sender_id = this.listClients.get(client.id).data.user.userId
+    const data: PinU2UMessageResDto = await this.pinService.unPinU2UMessage(unpinMessage)
+    client
+      .emit('return-unpin-u2u-message', data)
+    const receiver_client: Socket = this.findOtherUserInConservation(data.receiver.id)
+    if (receiver_client) receiver_client.emit('return-unpin-u2u-message', data)
+  }
+  // get list pin message of u2u conservation
+  @SubscribeMessage('get-pin-u2u-messages')
+  async getPinU2UMessages(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) conservation: PinU2UConservationReqDto) {
+    conservation.sender_id = this.listClients.get(client.id).data.user.userId
+    const data: PinMessageEntity[] = await this.pinService.getAllPinMessageOfU2Uconservation(conservation)
+    client
+      .emit('return-get-pin-u2u-messages', data)
   }
   // add member to group
   @SubscribeMessage('add-member')
@@ -153,6 +171,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const data: GroupMessageResDto = await this.messageService.addNewGroupMessage(createMessage)
     this.emitAllMembers(createMessage.group_id, 'return-add-group-message', data)
   }
+  // remove message in group
   @SubscribeMessage('remove-group-message')
   async removeGroupMessage(
     @ConnectedSocket() client: Socket,
@@ -161,7 +180,8 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const data: GroupMessageResDto = await this.messageService.deleteGroupMessage(deleteMessage)
     this.emitAllMembers(deleteMessage.group_id, 'return-remove-group-message', data)
   }
-  @SubscribeMessage('out-group-message')
+  // member out group
+  @SubscribeMessage('out-group')
   async outGroupMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) outGroup: OutGroup) {
@@ -180,6 +200,64 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     client
       .emit('return-get-group-message', data)
   }
+    // pin message in u2u conservation
+    @SubscribeMessage('pin-group-message')
+    async pinGroupMessage(
+      @ConnectedSocket() client: Socket,
+      @MessageBody(SocketTransformPipe) pinMessage: PinGroupMessageReqDto) {
+      pinMessage.creator = this.listClients.get(client.id).data.user.userId
+      const data: PinGroupMessageResDto = await this.pinService.pinGroupMessage(pinMessage)
+      client
+        .emit('return-pin-group-message', data)
+      this.emitAllMembers(data.group.id,'return-pin-group-message',data)
+    }
+    // unpin message in u2u conservation
+    @SubscribeMessage('unpin-group-message')
+    async unPinGroupMessage(
+      @ConnectedSocket() client: Socket,
+      @MessageBody(SocketTransformPipe) unpinMessage: UnPinGroupMessageReqDto) {
+      unpinMessage.creator_id = this.listClients.get(client.id).data.user.userId
+      const data: PinGroupMessageResDto = await this.pinService.unPinGroupMessage(unpinMessage)
+      client
+        .emit('return-unpin-u2u-message', data)
+        this.emitAllMembers(data.group.id,'return-unpin-group-message',data)
+    }
+    // get list pin message of u2u conservation
+    @SubscribeMessage('get-pin-group-messages')
+    async getPinGroupMessages(
+      @ConnectedSocket() client: Socket,
+      @MessageBody(SocketTransformPipe) conservation: PinGroupConservationReqDto) {
+      conservation.user_id = this.listClients.get(client.id).data.user.userId
+      const data: PinMessageEntity[] = await this.pinService.getAllPinMessageOfGroupconservation(conservation)
+      client
+        .emit('return-get-pin-u2u-messages', data)
+    }
+  // add or remove user in group
+  private async handleUserInGroup(client: Socket, add: boolean) {
+    const profile: Profile = await this.groupService.getUserWithListGroup(client.data.userId)
+    profile.groups.length > 0
+      && profile.groups.map((group: Group) => {
+        const isMember: boolean = this.listGroups.has(group.id.toString())
+        if (isMember) {
+          let listClients: Socket[] = this.listGroups.get(group.id.toString())
+          // add => push, remove: delete
+          add ? listClients.push(client) : listClients = listClients.filter((c) => { return c.data.userId != client.data.userId })
+          this.listGroups.set(group.id.toString(), listClients)
+        }
+      })
+  }
+  // create group map
+  private async createGroupMap() {
+    const groups: Group[] = await this.groupService.getAllGroups()
+    if (groups.length == 0) return
+    groups.map(group => this.listGroups.set(group.id.toString(), []))
+  }
+  // find receiver in u2u convervation
+  private findOtherUserInConservation(id: number): Socket {
+    if (this.listUsers.has(id.toString())) return this.listClients.get(this.listUsers.get(id.toString()))
+    else return null
+  }
+  // emit all member in group
   private emitAllMembers(groupId: number, event: string, data: any) {
     if (this.listGroups.has(groupId.toString())) {
       this.listGroups.get(groupId.toString()).map((user: Socket) => {
@@ -187,6 +265,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
       })
     }
   }
+  // update (remove or add) member in group
   private updateSocketGroup(group_id: number, client: Socket, add: boolean) {
     if (this.listGroups.has(group_id.toString())) {
       let listClients: Socket[] = this.listGroups.get(group_id.toString())

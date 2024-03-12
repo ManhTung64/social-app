@@ -5,14 +5,15 @@ import { AuthModule } from 'src/auth/auth.module';
 import { GroupModule } from 'src/group/group.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MessageEntity } from './entities/message.entity';
-import Redis from 'ioredis';
-import redisConfig from 'src/configuration/redis.config';
 import { MessageController } from './controllers/message.controller';
 import { FileModule } from 'src/file/file.module';
+import { PinMessageEntity } from './entities/pin.entity';
+import { PinMessageService } from './services/pin.service';
+import { PinMessageRepository } from './repositories/pin.repository';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([MessageEntity]),
+    TypeOrmModule.forFeature([MessageEntity, PinMessageEntity]),
     AuthModule,
     GroupModule,
     FileModule
@@ -23,9 +24,12 @@ import { FileModule } from 'src/file/file.module';
   providers: [
     MessageService,
     MessageRepository,
+    PinMessageService,
+    PinMessageRepository
   ],
   exports:[
-    MessageService
+    MessageService,
+    PinMessageService
   ]
 })
 export class MessageModule {}

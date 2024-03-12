@@ -1,15 +1,12 @@
 import { BadRequestException, Inject, Injectable, UseFilters } from '@nestjs/common';
 import { MessageRepository } from '../repositories/message.repository';
 import { CreateMessageReqDto, CreateU2UMessageData, DeleteMessageReqDto } from '../dtos/req/userToUserMessage.dto';
-import { UserRepository } from 'src/auth/repositories/user.repository';
-import { User } from 'src/auth/entities/user.entity';
 import { GroupRepository } from 'src/group/repositories/group.repository';
 import { Group } from 'src/group/entities/group.entity';
 import { WsException } from '@nestjs/websockets';
 import { MessageEntity } from '../entities/message.entity';
 import { plainToClass } from 'class-transformer';
 import { CreateU2UMessageResDto, RemoveU2UMessageResDto, MessageResDto } from '../dtos/res/u2u.res.dto';
-import {Redis} from 'ioredis';
 import { LimitGroupConservationReqDto, LimitGroupMessageReqDto, LimitU2UConservationReqDto, LimitU2UMessageReqDto } from '../dtos/req/pagination.dto';
 import { WebSocketExceptionFilter } from 'src/socket-gateway/exception-filter/event-gateway.exception';
 import { ProfileRepository } from 'src/auth/repositories/profile.repository';
