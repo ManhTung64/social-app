@@ -10,6 +10,7 @@ import { FileModule } from 'src/file/file.module';
 import { PinMessageEntity } from './entities/pin.entity';
 import { PinMessageService } from './services/pin.service';
 import { PinMessageRepository } from './repositories/pin.repository';
+import { CensoredService } from './services/badword.service';
 
 @Module({
   imports:[
@@ -25,7 +26,8 @@ import { PinMessageRepository } from './repositories/pin.repository';
     MessageService,
     MessageRepository,
     PinMessageService,
-    PinMessageRepository
+    PinMessageRepository,
+    CensoredService
   ],
   exports:[
     MessageService,

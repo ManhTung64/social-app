@@ -15,6 +15,7 @@ import { FileService } from 'src/file/services/file.service';
 import { CreateGroupMessageData, CreateGroupMessageReqDto, DeleteGroupMessageReqDto } from '../dtos/req/groupMessage.req.dto';
 import { GroupMessageResDto } from '../dtos/res/group.res.dto';
 import { SearchGroupMessageReqDto, SearchU2UMessageReqDto } from '../dtos/req/search.req.dto';
+import { CensoredService } from './badword.service';
 
 @Injectable()
 @UseFilters(WebSocketExceptionFilter)
@@ -23,7 +24,8 @@ export class MessageService {
         private readonly messageRepository: MessageRepository,
         private readonly userRepository: ProfileRepository,
         private readonly groupRepository: GroupRepository,
-        private readonly fileService:FileService
+        private readonly fileService:FileService,
+        private readonly censoredService:CensoredService
     ) {
         
      }
@@ -101,6 +103,8 @@ export class MessageService {
         if (!sender || !group) throw new WsException("user's or group's id is invalid")
         else if (!isInGroup) throw new WsException("Forrbiden")
         else if (createMessage.reply_id && !reply) throw new WsException("reply's id is invalid")
+        // censored content
+        else if (this.censoredService.badword.search(createMessage.content).length > 0) throw new WsException('Words are not polite')
         //file
         if (createMessage.uploadFiles && createMessage.uploadFiles.length > 0) 
             createMessage.files = await this.fileService.uploadBase64File(createMessage.uploadFiles)
