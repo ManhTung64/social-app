@@ -20,3 +20,11 @@ export class ChangeNameReqDto{
     @IsNotEmpty()
     group_id:number
 }
+export class ChangeCreatorDto{
+    @IsOptional()
+    creator:number
+    @IsNotEmpty()
+    newCreator:number
+    @IsNotEmpty()
+    group_id:number
+}

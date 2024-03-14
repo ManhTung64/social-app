@@ -21,7 +21,7 @@ export class GroupRepository extends BaseRepository<Group>{
         return await this.groupRepository.findOne({ where: { name: name, creator: user } })
     }
     public async isMemberInGroup(groupId: number, memberId: number): Promise<[Group, boolean]> {
-        const group: Group = await this.groupRepository.findOneOrFail({ where: { id: groupId }, relations: ['members'] });
+        const group: Group = await this.groupRepository.findOneOrFail({ where: { id: groupId }, relations: ['members, creator'] });
         return group.members.find(member => member.id == memberId) ? [group, true] : [group, false]
     }
     public async isCreator(groupId: number, creator: number): Promise<Group> {

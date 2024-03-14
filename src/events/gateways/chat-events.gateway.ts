@@ -32,7 +32,7 @@ import { PinMessageService } from 'src/message/services/pin.service';
 import { PinGroupMessageResDto, PinU2UMessageResDto } from 'src/message/dtos/res/pin.res.dto';
 import { PinMessageEntity } from 'src/message/entities/pin.entity';
 import { SearchGroupMessageReqDto, SearchU2UMessageReqDto } from 'src/message/dtos/req/search.req.dto';
-import { ChangeNameReqDto } from 'src/group/dtos/req/group.dto';
+import { ChangeCreatorDto, ChangeNameReqDto } from 'src/group/dtos/req/group.dto';
 import { GroupResDto } from 'src/group/dtos/res/group.res.dto';
 
 @WebSocketGateway({ namespace: 'chat' })
@@ -175,6 +175,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     this.emitAllMembers(data.groupId, 'remove-member-result', res)
     this.updateSocketGroup(data.groupId, client, false)
   }
+  // change group name
   @SubscribeMessage('change-group-name')
   async changeGroupname(
     @ConnectedSocket() client: Socket,
@@ -183,6 +184,16 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const res: GroupResDto = await this.groupService.changeGroupName(data)
     if (!res) throw new WebSocketExceptionFilter()
     this.emitAllMembers(data.group_id, 'return-change-group-name', res)
+  }
+  // change creator of group
+  @SubscribeMessage('change-creator')
+  async changeCreator(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) data: ChangeCreatorDto) {
+    data.creator = this.listClients.get(client.id).data.user.userId
+    const res: GroupResDto = await this.groupService.changeCreator(data)
+    if (!res) throw new WebSocketExceptionFilter()
+    this.emitAllMembers(data.group_id, 'return-change-creator', res)
   }
   // add new message in group
   @SubscribeMessage('add-group-message')

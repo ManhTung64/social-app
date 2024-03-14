@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { WsException } from '@nestjs/websockets';
 import { GroupRepository } from '../repositories/group.repository';
 import { ProfileRepository } from '../../auth/repositories/profile.repository';
-import { ChangeNameReqDto, CreateGroup } from '../dtos/req/group.dto';
+import { ChangeCreatorDto, ChangeNameReqDto, CreateGroup } from '../dtos/req/group.dto';
 import { Group } from '../entities/group.entity';
 import { Profile } from '../../auth/entities/profile.entity';
 import { AddMember, OutGroup, RemoveMember } from '../dtos/req/member.dto';
@@ -24,28 +24,38 @@ export class GroupService {
         //add new
         return await this.groupRepository.getListByCreatorId(id)
     }
-    public async changeGroupName(changeName:ChangeNameReqDto):Promise<GroupResDto>{
-        const group:Group = await this.groupRepository.isCreator(changeName.group_id, changeName.creator)
+    public async changeGroupName(changeName: ChangeNameReqDto): Promise<GroupResDto> {
+        const group: Group = await this.groupRepository.isCreator(changeName.group_id, changeName.creator)
         if (!group) throw new WsException('Forrbiden')
         group.name = changeName.name
-        return plainToClass (GroupResDto, await this.groupRepository.saveChange(group))
+        return plainToClass(GroupResDto, await this.groupRepository.saveChange(group))
+    }
+    public async changeCreator(changeCreator: ChangeCreatorDto): Promise<GroupResDto> {
+        if (changeCreator.creator == changeCreator.newCreator) throw new WsException('request is invalid')
+        const [isCreator, [group, isInGroup]]: [Group, [Group, boolean]] = await Promise.all([
+            this.groupRepository.isCreator(changeCreator.group_id, changeCreator.creator),
+            this.groupRepository.isMemberInGroup(changeCreator.group_id, changeCreator.newCreator)
+        ])
+        if (!isCreator || !isInGroup) throw new WsException('Forrbiden')
+        group.creator = await this.profileRepository.findOneById(changeCreator.newCreator)
+        return plainToClass(GroupResDto, await this.groupRepository.saveChange(group))
     }
     public async getAllGroups(): Promise<Group[]> {
         return await this.groupRepository.findAll()
     }
-    public async getUserWithListGroup(id:number):Promise<Profile>{
+    public async getUserWithListGroup(id: number): Promise<Profile> {
         return await this.profileRepository.getGroups(id)
     }
     public async create(newGroup: CreateGroup): Promise<GroupResDto> {
         // check ex user
         const profile: Profile = await this.profileRepository.findOneById(newGroup.userId)
         if (!profile) throw new NotFoundException("Not found data")
-        
+
         //check ex group of this user
         if (await this.groupRepository.findOneByName(newGroup.name, profile)) throw new BadRequestException("Invalid group's name")
         // get
         newGroup.creator = profile
-        const group:Group = await this.groupRepository.createNew(newGroup)
+        const group: Group = await this.groupRepository.createNew(newGroup)
         profile.groups.push(plainToClass(Group, group))
         await this.profileRepository.addGroup(profile)
         return plainToClass(GroupResDto, group)
@@ -77,11 +87,11 @@ export class GroupService {
         const [group, isInGroup]: [Group, boolean] = await this.groupRepository.isMemberInGroup(removeMember.groupId, removeMember.memberId)
         if (!isInGroup) throw new WsException('Deleted')
 
-        group.members = group.members.filter((user) =>{return user.id != profile.id})
+        group.members = group.members.filter((user) => { return user.id != profile.id })
         await this.groupRepository.saveChange(group)
         return profile
     }
-    public async outGroup(outGroup:OutGroup): Promise<Profile> {
+    public async outGroup(outGroup: OutGroup): Promise<Profile> {
         // check ex user
         const [profile, [group, isInGroup]]: [Profile, [Group, boolean]] = await Promise.all([
             this.profileRepository.findOneById(outGroup.memberId),
@@ -90,7 +100,7 @@ export class GroupService {
         if (!profile) throw new WsException("Not found data")
         else if (!isInGroup) throw new WsException('Forrbiden')
 
-        group.members = group.members.filter((user) =>{return user.id != profile.id})
+        group.members = group.members.filter((user) => { return user.id != profile.id })
         await this.groupRepository.saveChange(group)
         return profile
     }
