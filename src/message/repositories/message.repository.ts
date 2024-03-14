@@ -2,10 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { MessageEntity } from "../entities/message.entity";
 import { BaseRepository } from "src/common/repository.common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, LessThanOrEqual, Repository } from "typeorm";
+import { In, LessThanOrEqual, Like, Repository } from "typeorm";
 import { CreateU2UMessageData, CreateMessageReqDto, FindUserToUserMessageReqDto } from "../dtos/req/userToUserMessage.dto";
 import { LimitGroupConservationReqDto, LimitGroupMessageReqDto, LimitU2UConservationReqDto, LimitU2UMessageReqDto } from "../dtos/req/pagination.dto";
 import { CreateGroupMessageData } from "../dtos/req/groupMessage.req.dto";
+import { SearchU2UMessageReqDto } from "../dtos/req/search.req.dto";
 
 @Injectable()
 export class MessageRepository extends BaseRepository<MessageEntity>{
@@ -97,5 +98,31 @@ export class MessageRepository extends BaseRepository<MessageEntity>{
             take: getMessage.limit
         }
         )
+    }
+    public async getU2UMessageByKeyword(searchDto: SearchU2UMessageReqDto): Promise<MessageEntity[]> {
+        return this.messageRepository.find({
+            where: {
+                sender: { id: searchDto.sender_id },
+                receiver: { id: searchDto.receiver_id },
+                content: Like(`%${searchDto.keyword}%`)
+            },
+            order: { createAt: 'DESC' },
+            skip: (searchDto.page - 1) * searchDto.limit,
+            take: searchDto.limit,
+            relations: ['sender'],
+            
+        });
+    }
+    public async getGroupMessageByKeyword(searchDto: any): Promise<MessageEntity[]> {
+        return this.messageRepository.find({
+            where: {
+                group: { id: searchDto.group_id },
+                content: Like(`%${searchDto.keyword}%`)
+            },
+            order: { createAt: 'DESC' },
+            skip: (searchDto.page - 1) * searchDto.limit,
+            take: searchDto.limit,
+            relations: ['sender']
+        });
     }
 }

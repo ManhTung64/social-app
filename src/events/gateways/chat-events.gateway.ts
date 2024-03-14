@@ -31,6 +31,7 @@ import { PinGroupConservationReqDto, PinGroupMessageReqDto, PinU2UConservationRe
 import { PinMessageService } from 'src/message/services/pin.service';
 import { PinGroupMessageResDto, PinU2UMessageResDto } from 'src/message/dtos/res/pin.res.dto';
 import { PinMessageEntity } from 'src/message/entities/pin.entity';
+import { SearchGroupMessageReqDto, SearchU2UMessageReqDto } from 'src/message/dtos/req/search.req.dto';
 
 @WebSocketGateway({ namespace: 'chat' })
 @UseFilters(WebSocketExceptionFilter)
@@ -105,6 +106,16 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const data: MessageEntity[] = await this.messageService.getU2UMessage(getMessage)
     client
       .emit('return-get-u2u-message', data)
+  }
+  // search u2u message
+  @SubscribeMessage('search-u2u-message')
+  async searchU2UMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) searchDto: SearchU2UMessageReqDto) {
+    searchDto.sender_id = this.listClients.get(client.id).data.user.userId
+    const data: MessageEntity[] = await this.messageService.searchU2UByKeyword(searchDto)
+    client
+      .emit('return-search-u2u-message', data)
   }
   // pin message in u2u conservation
   @SubscribeMessage('pin-u2u-message')
@@ -200,38 +211,48 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     client
       .emit('return-get-group-message', data)
   }
-    // pin message in u2u conservation
-    @SubscribeMessage('pin-group-message')
-    async pinGroupMessage(
-      @ConnectedSocket() client: Socket,
-      @MessageBody(SocketTransformPipe) pinMessage: PinGroupMessageReqDto) {
-      pinMessage.creator = this.listClients.get(client.id).data.user.userId
-      const data: PinGroupMessageResDto = await this.pinService.pinGroupMessage(pinMessage)
-      client
-        .emit('return-pin-group-message', data)
-      this.emitAllMembers(data.group.id,'return-pin-group-message',data)
-    }
-    // unpin message in u2u conservation
-    @SubscribeMessage('unpin-group-message')
-    async unPinGroupMessage(
-      @ConnectedSocket() client: Socket,
-      @MessageBody(SocketTransformPipe) unpinMessage: UnPinGroupMessageReqDto) {
-      unpinMessage.creator_id = this.listClients.get(client.id).data.user.userId
-      const data: PinGroupMessageResDto = await this.pinService.unPinGroupMessage(unpinMessage)
-      client
-        .emit('return-unpin-u2u-message', data)
-        this.emitAllMembers(data.group.id,'return-unpin-group-message',data)
-    }
-    // get list pin message of u2u conservation
-    @SubscribeMessage('get-pin-group-messages')
-    async getPinGroupMessages(
-      @ConnectedSocket() client: Socket,
-      @MessageBody(SocketTransformPipe) conservation: PinGroupConservationReqDto) {
-      conservation.user_id = this.listClients.get(client.id).data.user.userId
-      const data: PinMessageEntity[] = await this.pinService.getAllPinMessageOfGroupconservation(conservation)
-      client
-        .emit('return-get-pin-u2u-messages', data)
-    }
+  // search group message
+  @SubscribeMessage('search-group-message')
+  async searchGroupMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) searchDto: SearchGroupMessageReqDto) {
+    searchDto.sender_id = this.listClients.get(client.id).data.user.userId
+    const data: MessageEntity[] = await this.messageService.searchGroupByKeyword(searchDto)
+    client
+      .emit('return-search-group-message', data)
+  }
+  // pin message in u2u conservation
+  @SubscribeMessage('pin-group-message')
+  async pinGroupMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) pinMessage: PinGroupMessageReqDto) {
+    pinMessage.creator = this.listClients.get(client.id).data.user.userId
+    const data: PinGroupMessageResDto = await this.pinService.pinGroupMessage(pinMessage)
+    client
+      .emit('return-pin-group-message', data)
+    this.emitAllMembers(data.group.id, 'return-pin-group-message', data)
+  }
+  // unpin message in u2u conservation
+  @SubscribeMessage('unpin-group-message')
+  async unPinGroupMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) unpinMessage: UnPinGroupMessageReqDto) {
+    unpinMessage.creator_id = this.listClients.get(client.id).data.user.userId
+    const data: PinGroupMessageResDto = await this.pinService.unPinGroupMessage(unpinMessage)
+    client
+      .emit('return-unpin-u2u-message', data)
+    this.emitAllMembers(data.group.id, 'return-unpin-group-message', data)
+  }
+  // get list pin message of u2u conservation
+  @SubscribeMessage('get-pin-group-messages')
+  async getPinGroupMessages(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) conservation: PinGroupConservationReqDto) {
+    conservation.user_id = this.listClients.get(client.id).data.user.userId
+    const data: PinMessageEntity[] = await this.pinService.getAllPinMessageOfGroupconservation(conservation)
+    client
+      .emit('return-get-pin-u2u-messages', data)
+  }
   // add or remove user in group
   private async handleUserInGroup(client: Socket, add: boolean) {
     const profile: Profile = await this.groupService.getUserWithListGroup(client.data.userId)

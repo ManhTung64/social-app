@@ -14,6 +14,7 @@ import { Profile } from 'src/auth/entities/profile.entity';
 import { FileService } from 'src/file/services/file.service';
 import { CreateGroupMessageData, CreateGroupMessageReqDto, DeleteGroupMessageReqDto } from '../dtos/req/groupMessage.req.dto';
 import { GroupMessageResDto } from '../dtos/res/group.res.dto';
+import { SearchGroupMessageReqDto, SearchU2UMessageReqDto } from '../dtos/req/search.req.dto';
 
 @Injectable()
 @UseFilters(WebSocketExceptionFilter)
@@ -152,5 +153,11 @@ export class MessageService {
             final_data.push(plainToClass(MessageResDto, message))
         })
         return final_data
+    }
+    public async searchU2UByKeyword(searchDto:SearchU2UMessageReqDto):Promise<MessageEntity[]>{
+        return await this.messageRepository.getU2UMessageByKeyword(searchDto)
+    }
+    public async searchGroupByKeyword(searchDto:SearchGroupMessageReqDto):Promise<MessageEntity[]>{
+        return await this.messageRepository.getGroupMessageByKeyword(searchDto)
     }
 }

@@ -1,7 +1,7 @@
 import { Profile } from "src/auth/entities/profile.entity";
 import { Group } from "src/group/entities/group.entity";
 import { FileInfo } from "src/post/entities/post.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name:'messages'})
 export class MessageEntity{
@@ -9,13 +9,11 @@ export class MessageEntity{
     id:number 
 
     @Column({type:'varchar', nullable:true})
+    @Index()
     content:string
 
     @CreateDateColumn()
     createAt:Date
-
-    // @Column({default:false})
-    // pin:boolean
 
     @Column({nullable:true, type:'jsonb'})
     files:FileInfo[]
