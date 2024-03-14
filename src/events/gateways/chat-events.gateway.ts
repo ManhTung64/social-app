@@ -32,6 +32,8 @@ import { PinMessageService } from 'src/message/services/pin.service';
 import { PinGroupMessageResDto, PinU2UMessageResDto } from 'src/message/dtos/res/pin.res.dto';
 import { PinMessageEntity } from 'src/message/entities/pin.entity';
 import { SearchGroupMessageReqDto, SearchU2UMessageReqDto } from 'src/message/dtos/req/search.req.dto';
+import { ChangeNameReqDto } from 'src/group/dtos/req/group.dto';
+import { GroupResDto } from 'src/group/dtos/res/group.res.dto';
 
 @WebSocketGateway({ namespace: 'chat' })
 @UseFilters(WebSocketExceptionFilter)
@@ -172,6 +174,15 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     if (!res) throw new WebSocketExceptionFilter()
     this.emitAllMembers(data.groupId, 'remove-member-result', res)
     this.updateSocketGroup(data.groupId, client, false)
+  }
+  @SubscribeMessage('change-group-name')
+  async changeGroupname(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) data: ChangeNameReqDto) {
+    data.creator = this.listClients.get(client.id).data.user.userId
+    const res: GroupResDto = await this.groupService.changeGroupName(data)
+    if (!res) throw new WebSocketExceptionFilter()
+    this.emitAllMembers(data.group_id, 'return-change-group-name', res)
   }
   // add new message in group
   @SubscribeMessage('add-group-message')

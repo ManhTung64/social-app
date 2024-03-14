@@ -33,7 +33,4 @@ export class GroupRepository extends BaseRepository<Group>{
             }
         })
     }
-    public async save(group: Group): Promise<Group> {
-        return await this.groupRepository.save(group)
-    }
 }

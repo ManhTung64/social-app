@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { WsException } from '@nestjs/websockets';
 import { GroupRepository } from '../repositories/group.repository';
 import { ProfileRepository } from '../../auth/repositories/profile.repository';
-import { CreateGroup } from '../dtos/req/group.dto';
+import { ChangeNameReqDto, CreateGroup } from '../dtos/req/group.dto';
 import { Group } from '../entities/group.entity';
 import { Profile } from '../../auth/entities/profile.entity';
 import { AddMember, OutGroup, RemoveMember } from '../dtos/req/member.dto';
@@ -23,6 +23,12 @@ export class GroupService {
         if (!profile) throw new NotFoundException("Not found data")
         //add new
         return await this.groupRepository.getListByCreatorId(id)
+    }
+    public async changeGroupName(changeName:ChangeNameReqDto):Promise<GroupResDto>{
+        const group:Group = await this.groupRepository.isCreator(changeName.group_id, changeName.creator)
+        if (!group) throw new WsException('Forrbiden')
+        group.name = changeName.name
+        return plainToClass (GroupResDto, await this.groupRepository.saveChange(group))
     }
     public async getAllGroups(): Promise<Group[]> {
         return await this.groupRepository.findAll()
@@ -56,10 +62,7 @@ export class GroupService {
         const [group, isInGroup]: [Group, boolean] = await this.groupRepository.isMemberInGroup(addMember.groupId, addMember.memberId)
         if (isInGroup) throw new WsException('Exsited')
         group.members.push(profile)
-        await Promise.all([
-            this.groupRepository.save(group),
-            this.profileRepository.addGroup(profile)
-        ])
+        await this.groupRepository.saveChange(group)
         return profile
     }
     public async removeMember(removeMember: RemoveMember): Promise<Profile> {
@@ -75,7 +78,7 @@ export class GroupService {
         if (!isInGroup) throw new WsException('Deleted')
 
         group.members = group.members.filter((user) =>{return user.id != profile.id})
-        await this.groupRepository.save(group)
+        await this.groupRepository.saveChange(group)
         return profile
     }
     public async outGroup(outGroup:OutGroup): Promise<Profile> {
@@ -88,7 +91,7 @@ export class GroupService {
         else if (!isInGroup) throw new WsException('Forrbiden')
 
         group.members = group.members.filter((user) =>{return user.id != profile.id})
-        await this.groupRepository.save(group)
+        await this.groupRepository.saveChange(group)
         return profile
     }
 }

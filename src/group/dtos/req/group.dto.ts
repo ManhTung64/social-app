@@ -11,3 +11,12 @@ export class CreateGroup{
     @IsOptional()
     creator:Profile
 }
+export class ChangeNameReqDto{
+    @IsOptional()
+    creator:number
+    @IsNotEmpty()
+    @MinLength(1)
+    name:string
+    @IsNotEmpty()
+    group_id:number
+}
