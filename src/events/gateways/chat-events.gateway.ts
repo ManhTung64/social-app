@@ -42,18 +42,18 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 
   @WebSocketServer() server: Server;
   private listClients: Map<string, Socket> // <socket.id, Socket>
-  private listUsers: Map<string, string> // <user id, socket.id>
-  private listGroups: Map<string, Socket[]> // <group.id, Socket[]>    
+  private listUsers  : Map<string, string> // <user id, socket.id>
+  private listGroups : Map<string, Socket[]> // <group.id, Socket[]>    
 
   constructor(
-    private readonly authService: AuthService,
+    private readonly authService   : AuthService,
     private readonly messageService: MessageService,
-    private readonly groupService: GroupService,
-    private readonly pinService: PinMessageService
+    private readonly groupService  : GroupService,
+    private readonly pinService    : PinMessageService
   ) {
     this.listClients = new Map()
     this.listClients = new Map()
-    this.listGroups = new Map()
+    this.listGroups  = new Map()
     new Promise(() => this.createGroupMap())
   }
 

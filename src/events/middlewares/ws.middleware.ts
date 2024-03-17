@@ -1,5 +1,4 @@
 import { UnauthorizedException } from "@nestjs/common"
-import { JwtService } from "@nestjs/jwt"
 import { Socket } from "socket.io"
 import { AuthService } from "src/auth/services/auth.service"
 export type SocketIOMiddleware = {
