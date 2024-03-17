@@ -6,7 +6,7 @@ import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMa
 @Entity({name:'messages'})
 export class MessageEntity{
     @PrimaryGeneratedColumn('uuid')
-    id:number 
+    id:string
 
     @Column({type:'varchar', nullable:true})
     @Index()

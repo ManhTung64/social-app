@@ -58,7 +58,7 @@ export class MessageRepository extends BaseRepository<MessageEntity>{
     public async addNew(createNewMessage: CreateU2UMessageData | CreateGroupMessageData): Promise<MessageEntity> {
         return await this.messageRepository.save(createNewMessage)
     }
-    public async findOneById(id: number): Promise<MessageEntity> {
+    public async findOneById(id: string): Promise<MessageEntity> {
         return await this.messageRepository.findOne({
             where: { id },
             relations: [
@@ -124,5 +124,8 @@ export class MessageRepository extends BaseRepository<MessageEntity>{
             take: searchDto.limit,
             relations: ['sender']
         });
+    }
+    public async deleteMessageAtGroupId(group_id:number){
+        return await this.messageRepository.delete({group:{id:group_id}})
     }
 }

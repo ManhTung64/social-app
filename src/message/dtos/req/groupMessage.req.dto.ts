@@ -13,7 +13,7 @@ export class CreateGroupMessageReqDto{
     @IsNotEmpty()
     group_id:number
     @IsOptional()
-    reply_id: number
+    reply_id: string
     @IsOptional()
     files:FileInfo[]
     @IsOptional()

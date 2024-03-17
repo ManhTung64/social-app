@@ -2,18 +2,20 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { WsException } from '@nestjs/websockets';
 import { GroupRepository } from '../repositories/group.repository';
 import { ProfileRepository } from '../../auth/repositories/profile.repository';
-import { ChangeCreatorDto, ChangeNameReqDto, CreateGroup } from '../dtos/req/group.dto';
+import { ChangeCreatorDto, ChangeNameReqDto, CreateGroup, DeleteGroupReqDto } from '../dtos/req/group.dto';
 import { Group } from '../entities/group.entity';
 import { Profile } from '../../auth/entities/profile.entity';
 import { AddMember, OutGroup, RemoveMember } from '../dtos/req/member.dto';
 import { plainToClass } from 'class-transformer';
 import { GroupResDto } from '../dtos/res/group.res.dto';
+import { MessageRepository } from 'src/message/repositories/message.repository';
 
 @Injectable()
 export class GroupService {
     constructor(
         private readonly groupRepository: GroupRepository,
-        private readonly profileRepository: ProfileRepository
+        private readonly profileRepository: ProfileRepository,
+        private readonly messageRepository:MessageRepository
     ) {
 
     }
@@ -39,6 +41,13 @@ export class GroupService {
         if (!isCreator || !isInGroup) throw new WsException('Forrbiden')
         group.creator = await this.profileRepository.findOneById(changeCreator.newCreator)
         return plainToClass(GroupResDto, await this.groupRepository.saveChange(group))
+    }
+    public async deleteGroup(deleteGroup:DeleteGroupReqDto): Promise<GroupResDto> {
+        const isCreator: Group= await this.groupRepository.isCreator(deleteGroup.group_id, deleteGroup.creator)
+        if (!isCreator) throw new WsException('Forrbiden')
+        await this.messageRepository.deleteMessageAtGroupId(deleteGroup.group_id)
+        if (await this.groupRepository.delete(deleteGroup.group_id)) return plainToClass(GroupResDto, isCreator)
+        else throw new WsException('Error')
     }
     public async getAllGroups(): Promise<Group[]> {
         return await this.groupRepository.findAll()
@@ -93,12 +102,14 @@ export class GroupService {
     }
     public async outGroup(outGroup: OutGroup): Promise<Profile> {
         // check ex user
-        const [profile, [group, isInGroup]]: [Profile, [Group, boolean]] = await Promise.all([
+        const [profile, [group, isInGroup], isCreator]: [Profile, [Group, boolean], Group] = await Promise.all([
             this.profileRepository.findOneById(outGroup.memberId),
             this.groupRepository.isMemberInGroup(outGroup.groupId, outGroup.memberId),
+            this.groupRepository.isCreator(outGroup.groupId, outGroup.memberId)
         ])
-        if (!profile) throw new WsException("Not found data")
+        if (!profile)        throw new WsException("Not found data")
         else if (!isInGroup) throw new WsException('Forrbiden')
+        else if (isCreator)  throw new WsException('Creator cannot out group when you are creator')
 
         group.members = group.members.filter((user) => { return user.id != profile.id })
         await this.groupRepository.saveChange(group)

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MessageService } from './services/message.service';
 import { MessageRepository } from './repositories/message.repository';
 import { AuthModule } from 'src/auth/auth.module';
@@ -16,7 +16,7 @@ import { CensoredService } from './services/badword.service';
   imports:[
     TypeOrmModule.forFeature([MessageEntity, PinMessageEntity]),
     AuthModule,
-    GroupModule,
+    forwardRef(()=> GroupModule),
     FileModule
   ],
   controllers:[
@@ -31,7 +31,8 @@ import { CensoredService } from './services/badword.service';
   ],
   exports:[
     MessageService,
-    PinMessageService
+    PinMessageService,
+    MessageRepository
   ]
 })
 export class MessageModule {}

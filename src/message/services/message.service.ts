@@ -60,6 +60,7 @@ export class MessageService {
             this.userRepository.findOneById(deleteMessage.sender),
             this.messageRepository.findOneById(deleteMessage.id)
         ])
+        
         if (!sender) throw new WsException("user's id is invalid")
         else if (!thisMessage) throw new WsException("message is invalid")
         else if (thisMessage.sender.id != sender.id) throw new WsException("Forrbiden")

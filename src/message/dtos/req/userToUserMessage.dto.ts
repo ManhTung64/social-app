@@ -18,7 +18,7 @@ export class CreateMessageReqDto{
     @IsNotEmpty()
     content:string
     @IsOptional()
-    reply_id: number
+    reply_id: string
     @IsOptional()
     files:FileInfo[]
     @IsOptional()
@@ -28,7 +28,7 @@ export class DeleteMessageReqDto{
     @IsOptional()
     sender:number
     @IsNotEmpty()
-    id:number
+    id:string
 }
 export class CreateU2UMessageData{
     sender:Profile

@@ -4,7 +4,7 @@ export class PinU2UMessageReqDto{
     @IsOptional()
     sender_id:number
     @IsNotEmpty()
-    message_id:number
+    message_id:string
 }
 export class UnPinU2UMessageReqDto{
     @IsNotEmpty()
@@ -22,7 +22,7 @@ export class PinGroupMessageReqDto{
     @IsOptional()
     creator:number
     @IsNotEmpty()
-    message_id:number
+    message_id:string
 }
 export class UnPinGroupMessageReqDto{
     @IsNotEmpty()

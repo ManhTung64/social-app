@@ -39,7 +39,7 @@ export class PinMessageService {
         ]) 
         if (!message || isEx) throw new WsException('message is invalid or pinned')
         else if (pinMessage.sender_id != message.sender.id
-            || pinMessage.sender_id != message.receiver.id)  throw new WsException('Forrbiden')
+            && pinMessage.sender_id != message.receiver.id)  throw new WsException('Forrbiden')
         // add new
         const newPinMessage:PinMessageEntity = await this.pinRepository.saveChange({
             message:message
@@ -54,11 +54,11 @@ export class PinMessageService {
         const pinMessage:PinMessageEntity = await this.pinRepository.findOneById(unPinMessage.id)
         if (!pinMessage) throw new WsException('message is un-pinned')
         else if (unPinMessage.sender_id != pinMessage.message.sender.id
-            || unPinMessage.sender_id != pinMessage.message.receiver.id)  throw new WsException('Forrbiden')
+            && unPinMessage.sender_id != pinMessage.message.receiver.id)  throw new WsException('Forrbiden')
         // remove
         const res_unPinMessage:PinMessageEntity = await this.pinRepository.delete(pinMessage.id)
         if (!res_unPinMessage) throw new WsException('Bad request')
-        const res:PinU2UMessageResDto = plainToClass(PinU2UMessageResDto, res_unPinMessage)
+        const res:PinU2UMessageResDto = plainToClass(PinU2UMessageResDto, pinMessage.message)
         res.pin_id = res_unPinMessage.id
         return res
     }

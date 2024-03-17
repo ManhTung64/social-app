@@ -28,3 +28,9 @@ export class ChangeCreatorDto{
     @IsNotEmpty()
     group_id:number
 }
+export class DeleteGroupReqDto{
+    @IsOptional()
+    creator:number
+    @IsNotEmpty()
+    group_id:number
+}

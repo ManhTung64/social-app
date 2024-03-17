@@ -10,7 +10,7 @@ export class PinMessageRepository extends BaseRepository<PinMessageEntity>{
     constructor(@InjectRepository(PinMessageEntity) private pinRepository: Repository<PinMessageEntity>) {
         super(pinRepository)
     }
-    public async findOneByMessageId(id: number): Promise<PinMessageEntity> {
+    public async findOneByMessageId(id: string): Promise<PinMessageEntity> {
         return await this.pinRepository.findOne({ where: { message: { id: id } }, relations: ['message', 'message.sender', 'message.receiver'] })
     }
     public async findOneById(id: number): Promise<PinMessageEntity> {

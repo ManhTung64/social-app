@@ -16,7 +16,6 @@ import { CreateMessageReqDto, DeleteMessageReqDto } from 'src/message/dtos/req/u
 import { MessageService } from 'src/message/services/message.service';
 import { CreateU2UMessageResDto } from 'src/message/dtos/res/u2u.res.dto';
 import { UseFilters, UseGuards } from '@nestjs/common';
-import { WebSocketExceptionFilter } from 'src/socket-gateway/exception-filter/event-gateway.exception';
 import { SocketTransformPipe } from '../pipes/ws.pipes';
 import { LimitGroupMessageReqDto, LimitU2UMessageReqDto } from 'src/message/dtos/req/pagination.dto';
 import { MessageEntity } from 'src/message/entities/message.entity';
@@ -32,8 +31,9 @@ import { PinMessageService } from 'src/message/services/pin.service';
 import { PinGroupMessageResDto, PinU2UMessageResDto } from 'src/message/dtos/res/pin.res.dto';
 import { PinMessageEntity } from 'src/message/entities/pin.entity';
 import { SearchGroupMessageReqDto, SearchU2UMessageReqDto } from 'src/message/dtos/req/search.req.dto';
-import { ChangeCreatorDto, ChangeNameReqDto } from 'src/group/dtos/req/group.dto';
+import { ChangeCreatorDto, ChangeNameReqDto, DeleteGroupReqDto } from 'src/group/dtos/req/group.dto';
 import { GroupResDto } from 'src/group/dtos/res/group.res.dto';
+import { WebSocketExceptionFilter } from '../exception-filter/event-gateway.exception';
 
 @WebSocketGateway({ namespace: 'chat' })
 @UseFilters(WebSocketExceptionFilter)
@@ -52,7 +52,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     private readonly pinService    : PinMessageService
   ) {
     this.listClients = new Map()
-    this.listClients = new Map()
+    this.listUsers = new Map()
     this.listGroups  = new Map()
     new Promise(() => this.createGroupMap())
   }
@@ -87,7 +87,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const receiver_client: Socket = this.findOtherUserInConservation(createMessage.receiver)
     if (receiver_client) receiver_client.emit('return-add-u2u-message', data)
   }
-  // add new mesage user to user
+  // remove mesage user to user
   @SubscribeMessage('remove-u2u-message')
   async deleteMessage(
     @ConnectedSocket() client: Socket,
@@ -195,6 +195,18 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     if (!res) throw new WebSocketExceptionFilter()
     this.emitAllMembers(data.group_id, 'return-change-creator', res)
   }
+    // delete group with creator
+    @SubscribeMessage('delete-group')
+    async deleteGroup(
+      @ConnectedSocket() client: Socket,
+      @MessageBody(SocketTransformPipe) data: DeleteGroupReqDto) {
+      data.creator = this.listClients.get(client.id).data.user.userId
+      const res: GroupResDto = await this.groupService.deleteGroup(data)
+      if (!res) throw new WebSocketExceptionFilter()
+      this.emitAllMembers(data.group_id, 'return-change-creator', res)
+      // remove clients
+      this.listGroups.delete(data.group_id.toString())
+    }
   // add new message in group
   @SubscribeMessage('add-group-message')
   async addNewGroupMessage(
@@ -220,6 +232,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     @MessageBody(SocketTransformPipe) outGroup: OutGroup) {
     outGroup.memberId = this.listClients.get(client.id).data.user.userId
     const data: Profile = await this.groupService.outGroup(outGroup)
+    client.emit('out-group-message', data)
     this.updateSocketGroup(outGroup.groupId, client, false)
     this.emitAllMembers(outGroup.groupId, 'out-group-message', data)
   }
