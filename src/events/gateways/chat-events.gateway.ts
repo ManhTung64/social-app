@@ -34,6 +34,8 @@ import { SearchGroupMessageReqDto, SearchU2UMessageReqDto } from 'src/message/dt
 import { ChangeCreatorDto, ChangeNameReqDto, DeleteGroupReqDto } from 'src/group/dtos/req/group.dto';
 import { GroupResDto } from 'src/group/dtos/res/group.res.dto';
 import { WebSocketExceptionFilter } from '../exception-filter/event-gateway.exception';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
 
 @WebSocketGateway({ namespace: 'chat' })
 @UseFilters(WebSocketExceptionFilter)
@@ -42,18 +44,20 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
 
   @WebSocketServer() server: Server;
   private listClients: Map<string, Socket> // <socket.id, Socket>
-  private listUsers  : Map<string, string> // <user id, socket.id>
-  private listGroups : Map<string, Socket[]> // <group.id, Socket[]>    
+  private listUsers: Map<string, string> // <user id, socket.id>
+  private listGroups: Map<string, Socket[]> // <group.id, Socket[]>    
+  public SERVER_ID:number = 1
 
   constructor(
-    private readonly authService   : AuthService,
+    private readonly authService: AuthService,
     private readonly messageService: MessageService,
-    private readonly groupService  : GroupService,
-    private readonly pinService    : PinMessageService
+    private readonly groupService: GroupService,
+    private readonly pinService: PinMessageService,
+    @InjectQueue('message-queue') private readonly queueService: Queue
   ) {
     this.listClients = new Map()
     this.listUsers = new Map()
-    this.listGroups  = new Map()
+    this.listGroups = new Map()
     new Promise(() => this.createGroupMap())
   }
 
@@ -86,6 +90,12 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
       .emit('return-add-u2u-message', data)
     const receiver_client: Socket = this.findOtherUserInConservation(createMessage.receiver)
     if (receiver_client) receiver_client.emit('return-add-u2u-message', data)
+    await this.queueService.add('user-queue', {
+      id:this.SERVER_ID,
+      event: 'return-add-u2u-message', 
+      receiver_id: createMessage.receiver,
+      data
+    }, { removeOnComplete: true })
   }
   // remove mesage user to user
   @SubscribeMessage('remove-u2u-message')
@@ -195,18 +205,18 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     if (!res) throw new WebSocketExceptionFilter()
     this.emitAllMembers(data.group_id, 'return-change-creator', res)
   }
-    // delete group with creator
-    @SubscribeMessage('delete-group')
-    async deleteGroup(
-      @ConnectedSocket() client: Socket,
-      @MessageBody(SocketTransformPipe) data: DeleteGroupReqDto) {
-      data.creator = this.listClients.get(client.id).data.user.userId
-      const res: GroupResDto = await this.groupService.deleteGroup(data)
-      if (!res) throw new WebSocketExceptionFilter()
-      this.emitAllMembers(data.group_id, 'return-change-creator', res)
-      // remove clients
-      this.listGroups.delete(data.group_id.toString())
-    }
+  // delete group with creator
+  @SubscribeMessage('delete-group')
+  async deleteGroup(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(SocketTransformPipe) data: DeleteGroupReqDto) {
+    data.creator = this.listClients.get(client.id).data.user.userId
+    const res: GroupResDto = await this.groupService.deleteGroup(data)
+    if (!res) throw new WebSocketExceptionFilter()
+    this.emitAllMembers(data.group_id, 'return-change-creator', res)
+    // remove clients
+    this.listGroups.delete(data.group_id.toString())
+  }
   // add new message in group
   @SubscribeMessage('add-group-message')
   async addNewGroupMessage(
@@ -312,6 +322,11 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
   private findOtherUserInConservation(id: number): Socket {
     if (this.listUsers.has(id.toString())) return this.listClients.get(this.listUsers.get(id.toString()))
     else return null
+  }
+  // emit all member in group
+  public emitU2U(receiver_id: number, event: string, data: any) {
+    const receiver: Socket = this.findOtherUserInConservation(receiver_id)
+    if (receiver) receiver.emit(event, data)
   }
   // emit all member in group
   private emitAllMembers(groupId: number, event: string, data: any) {

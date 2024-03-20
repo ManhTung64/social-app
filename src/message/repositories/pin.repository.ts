@@ -11,7 +11,11 @@ export class PinMessageRepository extends BaseRepository<PinMessageEntity>{
         super(pinRepository)
     }
     public async findOneByMessageId(id: string): Promise<PinMessageEntity> {
-        return await this.pinRepository.findOne({ where: { message: { id: id } }, relations: ['message', 'message.sender', 'message.receiver'] })
+        return await this.pinRepository.findOne(
+            {
+                where: { message: { id: id } },
+                relations: ['message', 'message.sender', 'message.receiver']
+            })
     }
     public async findOneById(id: number): Promise<PinMessageEntity> {
         return await this.pinRepository.findOne(
@@ -45,7 +49,7 @@ export class PinMessageRepository extends BaseRepository<PinMessageEntity>{
         return await this.pinRepository.find({
             where: {
                 message: {
-                    group:{id:conservation.group_id}
+                    group: { id: conservation.group_id }
                 }
             },
             relations: [

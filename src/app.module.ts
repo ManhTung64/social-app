@@ -3,7 +3,6 @@ import { AuthModule } from './auth/auth.module';
 import { FileModule } from './file/file.module';
 import { MailModule } from './mail/mail.module';
 import { BullModule } from '@nestjs/bull';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { dataSourceOptions } from './app/postgres/data-source';
 import { PostModule } from './post/post.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
