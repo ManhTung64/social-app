@@ -11,4 +11,7 @@ export class BaseRepository<T>{
     public async delete(id: number): Promise<any> {
         return await this.repository.delete(id).catch(() => null)
     }
+    public async saveChange(data:T):Promise<T>{
+        return await this.repository.save(data)
+    }
 }

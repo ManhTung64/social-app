@@ -4,20 +4,17 @@ import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, Ma
 
 @Entity('group')
 export class Group {
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryGeneratedColumn()
     id: number
 
     @Column()
     name: string
 
-    @Column()
-    content: string
-
     @ManyToOne(() => Profile, profile=>profile.id)
-    @JoinTable()
+    @JoinColumn()
     creator: Profile;
 
-    @ManyToMany(() => Profile, profile=> profile.groups, {onDelete:'CASCADE'})
+    @ManyToMany(() => Profile, profile=> profile.id, {onDelete:'CASCADE'})
     @JoinTable({name:'member_group'})
     members: Profile[]
 }

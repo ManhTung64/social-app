@@ -1,14 +1,21 @@
 import { Module } from '@nestjs/common';
-import { StateEventsGateway } from './gateways/state-events.gateway';
+import { ChatEventsGateway } from './gateways/chat-events.gateway';
 import { AuthModule } from 'src/auth/auth.module';
+import { MessageModule } from 'src/message/message.module';
+import { GroupModule } from 'src/group/group.module';
+import { ThrottleGuard } from './guards/throttle.guard';
 
 
 @Module({
   imports:[
-    AuthModule
+    AuthModule,
+    MessageModule,
+    GroupModule
   ],
   providers: [
-    StateEventsGateway,
+    ChatEventsGateway,
+    ThrottleGuard
   ]
 })
-export class EventsModule {}
+export class EventsModule {
+}

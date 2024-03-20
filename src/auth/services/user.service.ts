@@ -82,6 +82,7 @@ export class UserService {
         else if (!await this.passwordService.verifyPassword(user.password, loginDto.password)) throw new BadRequestException('Information is invalid')
         // return with token
         const userInfo:UserTokenDto = plainToClass(UserTokenDto,user)
+        console.log(user)
         userInfo.token = await this.authService.createToken(user)
         return userInfo
     }
