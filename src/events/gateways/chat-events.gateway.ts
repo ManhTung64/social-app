@@ -34,8 +34,6 @@ import { SearchGroupMessageReqDto, SearchU2UMessageReqDto } from 'src/message/dt
 import { ChangeCreatorDto, ChangeNameReqDto, DeleteGroupReqDto } from 'src/group/dtos/req/group.dto';
 import { GroupResDto } from 'src/group/dtos/res/group.res.dto';
 import { WebSocketExceptionFilter } from '../exception-filter/event-gateway.exception';
-import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
 import { U2UQueueMessageInterceptor } from '../interceptors/u2uQueueMessage.interceptor';
 import { plainToClass } from 'class-transformer';
 import { SocketDto } from '../dtos/res/socketResDto';
@@ -57,7 +55,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     private readonly messageService: MessageService,
     private readonly groupService: GroupService,
     private readonly pinService: PinMessageService,
-    @InjectQueue('message-queue') private readonly queueService: Queue
   ) {
     this.listClients = new Map()
     this.listUsers = new Map()
@@ -91,8 +88,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     @MessageBody(SocketTransformPipe) createMessage: CreateMessageReqDto) {
     createMessage.sender = this.listClients.get(client.id).data.user.userId
     const data: CreateU2UMessageResDto = await this.messageService.addNewU2UMessage(createMessage)
-    client
-      .emit('return-add-u2u-message', data)
     const receiver_client: Socket = this.findOtherUserInConservation(createMessage.receiver)
     if (receiver_client) receiver_client.emit('return-add-u2u-message', data)
     return plainToClass(SocketDto, { data, event: 'return-add-u2u-message', server_id: this.SERVER_ID })
@@ -105,8 +100,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     @MessageBody(SocketTransformPipe) deleteMessage: DeleteMessageReqDto) {
     deleteMessage.sender = this.listClients.get(client.id).data.user.userId
     const data: CreateU2UMessageResDto = await this.messageService.deleteU2UMessage(deleteMessage)
-    client
-      .emit('return-remove-u2u-message', data)
     const receiver_client: Socket = this.findOtherUserInConservation(data.receiver.id)
     if (receiver_client) receiver_client.emit('return-remove-u2u-message', data)
     return plainToClass(SocketDto, { data, event: 'return-remove-u2u-message', server_id: this.SERVER_ID })
@@ -139,8 +132,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     @MessageBody(SocketTransformPipe) pinMessage: PinU2UMessageReqDto) {
     pinMessage.sender_id = this.listClients.get(client.id).data.user.userId
     const data: PinU2UMessageResDto = await this.pinService.pinU2UMessage(pinMessage)
-    client
-      .emit('return-pin-u2u-message', data)
     const receiver_client: Socket = this.findOtherUserInConservation(data.receiver.id)
     if (receiver_client) receiver_client.emit('return-pin-u2u-message', data)
     return plainToClass(SocketDto, { data, event: 'return-pin-u2u-message', server_id: this.SERVER_ID })
@@ -153,8 +144,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     @MessageBody(SocketTransformPipe) unpinMessage: UnPinU2UMessageReqDto) {
     unpinMessage.sender_id = this.listClients.get(client.id).data.user.userId
     const data: PinU2UMessageResDto = await this.pinService.unPinU2UMessage(unpinMessage)
-    client
-      .emit('return-unpin-u2u-message', data)
     const receiver_client: Socket = this.findOtherUserInConservation(data.receiver.id)
     if (receiver_client) receiver_client.emit('return-unpin-u2u-message', data)
     return plainToClass(SocketDto, { data, event: 'return-unpin-u2u-message', server_id: this.SERVER_ID })
@@ -296,8 +285,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     @MessageBody(SocketTransformPipe) pinMessage: PinGroupMessageReqDto) {
     pinMessage.creator = this.listClients.get(client.id).data.user.userId
     const data: PinGroupMessageResDto = await this.pinService.pinGroupMessage(pinMessage)
-    client
-      .emit('return-pin-group-message', data)
     this.emitAllMembers(data.group.id, 'return-pin-group-message', data)
     return plainToClass(SocketDto, { data, event: 'return-pin-group-message', server_id: this.SERVER_ID })
   }
@@ -309,9 +296,8 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     @MessageBody(SocketTransformPipe) unpinMessage: UnPinGroupMessageReqDto) {
     unpinMessage.creator_id = this.listClients.get(client.id).data.user.userId
     const data: PinGroupMessageResDto = await this.pinService.unPinGroupMessage(unpinMessage)
-    client
-      .emit('return-unpin-u2u-message', data)
     this.emitAllMembers(data.group.id, 'return-unpin-group-message', data)
+    return plainToClass(SocketDto, { data, event: 'return-unpin-group-message', server_id: this.SERVER_ID })
   }
   // get list pin message of u2u conservation
   @SubscribeMessage('get-pin-group-messages')

@@ -3,6 +3,7 @@ import { Profile } from "src/auth/entities/profile.entity";
 import { FileInfo } from "src/post/entities/post.entity";
 import { MessageEntity } from "../../entities/message.entity";
 import { Group } from "src/group/entities/group.entity";
+import { ValidateContent } from "src/message/decorators/validateContent.decorator";
 
 export class FindUserToUserMessageReqDto{
     @IsNotEmpty()
@@ -15,7 +16,7 @@ export class CreateMessageReqDto{
     sender:number
     @IsNotEmpty()
     receiver:number
-    @IsNotEmpty()
+    @ValidateContent()
     content:string
     @IsOptional()
     reply_id: string

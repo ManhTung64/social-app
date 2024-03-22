@@ -1,9 +1,11 @@
 import { Exclude, Expose } from "class-transformer";
 import { IsEmail, IsNotEmpty, IsStrongPassword, MinLength } from "class-validator";
+import { ValidateContent } from "src/message/decorators/validateContent.decorator";
 
 export class CreateUserDto {
     @IsNotEmpty()
     @MinLength(6)
+    @ValidateContent()
     username: string
     @IsNotEmpty()
     @IsStrongPassword()

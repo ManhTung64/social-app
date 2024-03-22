@@ -10,14 +10,14 @@ export class MessageConsumer {
     }
     @Process('user-queue')
     async u2uMessageProcess (data:Job){
-        if (this.eventGateWay.SERVER_ID == data.data.id){
+        if (this.eventGateWay.SERVER_ID != data.data.id){
             this.eventGateWay.emitU2U(data.data.receiver_id, data.data.event, data.data.data)
             await data.remove()
         } 
     }
     @Process('group-queue')
     async groupMessageProcess (data:Job){
-        if (this.eventGateWay.SERVER_ID == data.data.id){
+        if (this.eventGateWay.SERVER_ID != data.data.id){
             this.eventGateWay.emitAllMembers(data.data.receiver_id, data.data.event, data.data.data)
             await data.remove()
         } 

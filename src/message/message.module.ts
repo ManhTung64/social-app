@@ -11,6 +11,7 @@ import { PinMessageEntity } from './entities/pin.entity';
 import { PinMessageService } from './services/pin.service';
 import { PinMessageRepository } from './repositories/pin.repository';
 import { CensoredService } from './services/badword.service';
+import { ContentValidator } from './decorators/validateContent.decorator';
 
 @Module({
   imports:[
@@ -27,7 +28,8 @@ import { CensoredService } from './services/badword.service';
     MessageRepository,
     PinMessageService,
     PinMessageRepository,
-    CensoredService
+    CensoredService,
+    ContentValidator
   ],
   exports:[
     MessageService,

@@ -13,7 +13,8 @@ export class SocketTransformPipe implements PipeTransform<any, any> {
       var object = plainToClass(metadata.metatype, value)
       var errors: ValidationError[] = await validate(object);
     } catch (e) {
-      throw new WsException('validation error')
+      console.log(e)
+      throw new WsException(e)
     }
     if (errors.length > 0) {
       const errorMessage: string[] = this.buildErrorMessage(errors);
