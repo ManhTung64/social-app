@@ -15,7 +15,7 @@ import { AuthService } from 'src/auth/services/auth.service';
 import { CreateMessageReqDto, DeleteMessageReqDto } from 'src/message/dtos/req/userToUserMessage.dto';
 import { MessageService } from 'src/message/services/message.service';
 import { CreateU2UMessageResDto } from 'src/message/dtos/res/u2u.res.dto';
-import { UseFilters, UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
 import { SocketTransformPipe } from '../pipes/ws.pipes';
 import { LimitGroupMessageReqDto, LimitU2UMessageReqDto } from 'src/message/dtos/req/pagination.dto';
 import { MessageEntity } from 'src/message/entities/message.entity';
@@ -36,6 +36,10 @@ import { GroupResDto } from 'src/group/dtos/res/group.res.dto';
 import { WebSocketExceptionFilter } from '../exception-filter/event-gateway.exception';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
+import { U2UQueueMessageInterceptor } from '../interceptors/u2uQueueMessage.interceptor';
+import { plainToClass } from 'class-transformer';
+import { SocketDto } from '../dtos/res/socketResDto';
+import { GroupQueueMessageInterceptor } from '../interceptors/groupQueueMessage.interceptor';
 
 @WebSocketGateway({ namespace: 'chat' })
 @UseFilters(WebSocketExceptionFilter)
@@ -46,7 +50,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
   private listClients: Map<string, Socket> // <socket.id, Socket>
   private listUsers: Map<string, string> // <user id, socket.id>
   private listGroups: Map<string, Socket[]> // <group.id, Socket[]>    
-  public SERVER_ID:number = 1
+  public SERVER_ID: number = 1
 
   constructor(
     private readonly authService: AuthService,
@@ -81,6 +85,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
   }
   // add new mesage user to user
   @SubscribeMessage('add-u2u-message')
+  @UseInterceptors(U2UQueueMessageInterceptor)
   async addNewMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) createMessage: CreateMessageReqDto) {
@@ -90,15 +95,11 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
       .emit('return-add-u2u-message', data)
     const receiver_client: Socket = this.findOtherUserInConservation(createMessage.receiver)
     if (receiver_client) receiver_client.emit('return-add-u2u-message', data)
-    await this.queueService.add('user-queue', {
-      id:this.SERVER_ID,
-      event: 'return-add-u2u-message', 
-      receiver_id: createMessage.receiver,
-      data
-    }, { removeOnComplete: true })
+    return plainToClass(SocketDto, { data, event: 'return-add-u2u-message', server_id: this.SERVER_ID })
   }
   // remove mesage user to user
   @SubscribeMessage('remove-u2u-message')
+  @UseInterceptors(U2UQueueMessageInterceptor)
   async deleteMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) deleteMessage: DeleteMessageReqDto) {
@@ -108,6 +109,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
       .emit('return-remove-u2u-message', data)
     const receiver_client: Socket = this.findOtherUserInConservation(data.receiver.id)
     if (receiver_client) receiver_client.emit('return-remove-u2u-message', data)
+    return plainToClass(SocketDto, { data, event: 'return-remove-u2u-message', server_id: this.SERVER_ID })
   }
   // get list message in conservation user to user
   @SubscribeMessage('get-u2u-message')
@@ -131,6 +133,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
   }
   // pin message in u2u conservation
   @SubscribeMessage('pin-u2u-message')
+  @UseInterceptors(U2UQueueMessageInterceptor)
   async pinU2UMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) pinMessage: PinU2UMessageReqDto) {
@@ -140,9 +143,11 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
       .emit('return-pin-u2u-message', data)
     const receiver_client: Socket = this.findOtherUserInConservation(data.receiver.id)
     if (receiver_client) receiver_client.emit('return-pin-u2u-message', data)
+    return plainToClass(SocketDto, { data, event: 'return-pin-u2u-message', server_id: this.SERVER_ID })
   }
   // unpin message in u2u conservation
   @SubscribeMessage('unpin-u2u-message')
+  @UseInterceptors(U2UQueueMessageInterceptor)
   async unPinU2UMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) unpinMessage: UnPinU2UMessageReqDto) {
@@ -152,6 +157,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
       .emit('return-unpin-u2u-message', data)
     const receiver_client: Socket = this.findOtherUserInConservation(data.receiver.id)
     if (receiver_client) receiver_client.emit('return-unpin-u2u-message', data)
+    return plainToClass(SocketDto, { data, event: 'return-unpin-u2u-message', server_id: this.SERVER_ID })
   }
   // get list pin message of u2u conservation
   @SubscribeMessage('get-pin-u2u-messages')
@@ -165,6 +171,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
   }
   // add member to group
   @SubscribeMessage('add-member')
+  @UseInterceptors(GroupQueueMessageInterceptor)
   async addMember(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) data: AddMember) {
@@ -173,9 +180,11 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     if (!res) throw new WebSocketExceptionFilter()
     this.updateSocketGroup(data.groupId, client, true)
     this.emitAllMembers(data.groupId, 'add-member-result', res)
+    return plainToClass(SocketDto, { data, event: 'add-member-result', server_id: this.SERVER_ID })
   }
   // remove member
   @SubscribeMessage('remove-member')
+  @UseInterceptors(GroupQueueMessageInterceptor)
   async removeMember(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) data: RemoveMember) {
@@ -184,9 +193,11 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     if (!res) throw new WebSocketExceptionFilter()
     this.emitAllMembers(data.groupId, 'remove-member-result', res)
     this.updateSocketGroup(data.groupId, client, false)
+    return plainToClass(SocketDto, { data, event: 'remove-member-result', server_id: this.SERVER_ID })
   }
   // change group name
   @SubscribeMessage('change-group-name')
+  @UseInterceptors(GroupQueueMessageInterceptor)
   async changeGroupname(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) data: ChangeNameReqDto) {
@@ -194,9 +205,11 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const res: GroupResDto = await this.groupService.changeGroupName(data)
     if (!res) throw new WebSocketExceptionFilter()
     this.emitAllMembers(data.group_id, 'return-change-group-name', res)
+    return plainToClass(SocketDto, { data, event: 'return-change-group-name', server_id: this.SERVER_ID })
   }
   // change creator of group
   @SubscribeMessage('change-creator')
+  @UseInterceptors(GroupQueueMessageInterceptor)
   async changeCreator(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) data: ChangeCreatorDto) {
@@ -204,9 +217,11 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const res: GroupResDto = await this.groupService.changeCreator(data)
     if (!res) throw new WebSocketExceptionFilter()
     this.emitAllMembers(data.group_id, 'return-change-creator', res)
+    return plainToClass(SocketDto, { data, event: 'return-change-creator', server_id: this.SERVER_ID })
   }
   // delete group with creator
   @SubscribeMessage('delete-group')
+  @UseInterceptors(GroupQueueMessageInterceptor)
   async deleteGroup(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) data: DeleteGroupReqDto) {
@@ -216,27 +231,33 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     this.emitAllMembers(data.group_id, 'return-change-creator', res)
     // remove clients
     this.listGroups.delete(data.group_id.toString())
+    return plainToClass(SocketDto, { data, event: 'return-change-creator', server_id: this.SERVER_ID })
   }
   // add new message in group
   @SubscribeMessage('add-group-message')
+  @UseInterceptors(GroupQueueMessageInterceptor)
   async addNewGroupMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) createMessage: CreateGroupMessageReqDto) {
     createMessage.sender = this.listClients.get(client.id).data.user.userId
     const data: GroupMessageResDto = await this.messageService.addNewGroupMessage(createMessage)
     this.emitAllMembers(createMessage.group_id, 'return-add-group-message', data)
+    return plainToClass(SocketDto, { data, event: 'return-add-group-message', server_id: this.SERVER_ID })
   }
   // remove message in group
   @SubscribeMessage('remove-group-message')
+  @UseInterceptors(GroupQueueMessageInterceptor)
   async removeGroupMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) deleteMessage: DeleteGroupMessageReqDto) {
     deleteMessage.sender = this.listClients.get(client.id).data.user.userId
     const data: GroupMessageResDto = await this.messageService.deleteGroupMessage(deleteMessage)
     this.emitAllMembers(deleteMessage.group_id, 'return-remove-group-message', data)
+    return plainToClass(SocketDto, { data, event: 'return-remove-group-message', server_id: this.SERVER_ID })
   }
   // member out group
   @SubscribeMessage('out-group')
+  @UseInterceptors(GroupQueueMessageInterceptor)
   async outGroupMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) outGroup: OutGroup) {
@@ -245,6 +266,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     client.emit('out-group-message', data)
     this.updateSocketGroup(outGroup.groupId, client, false)
     this.emitAllMembers(outGroup.groupId, 'out-group-message', data)
+    return plainToClass(SocketDto, { data, event: 'out-group-message', server_id: this.SERVER_ID })
   }
   // get list message in conservation user to user
   @SubscribeMessage('get-group-message')
@@ -268,6 +290,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
   }
   // pin message in u2u conservation
   @SubscribeMessage('pin-group-message')
+  @UseInterceptors(GroupQueueMessageInterceptor)
   async pinGroupMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) pinMessage: PinGroupMessageReqDto) {
@@ -276,9 +299,11 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     client
       .emit('return-pin-group-message', data)
     this.emitAllMembers(data.group.id, 'return-pin-group-message', data)
+    return plainToClass(SocketDto, { data, event: 'return-pin-group-message', server_id: this.SERVER_ID })
   }
   // unpin message in u2u conservation
   @SubscribeMessage('unpin-group-message')
+  @UseInterceptors(GroupQueueMessageInterceptor)
   async unPinGroupMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(SocketTransformPipe) unpinMessage: UnPinGroupMessageReqDto) {
@@ -329,7 +354,7 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     if (receiver) receiver.emit(event, data)
   }
   // emit all member in group
-  private emitAllMembers(groupId: number, event: string, data: any) {
+  public emitAllMembers(groupId: number, event: string, data: any) {
     if (this.listGroups.has(groupId.toString())) {
       this.listGroups.get(groupId.toString()).map((user: Socket) => {
         user.emit(event, data)

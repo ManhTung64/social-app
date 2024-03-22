@@ -6,6 +6,8 @@ import { GroupModule } from 'src/group/group.module';
 import { ThrottleGuard } from './guards/throttle.guard';
 import { BullModule } from '@nestjs/bull';
 import { MessageConsumer } from './consumer/message.consumer';
+import { GroupQueueMessageInterceptor } from './interceptors/groupQueueMessage.interceptor';
+import { U2UQueueMessageInterceptor } from './interceptors/u2uQueueMessage.interceptor';
 
 
 @Module({
@@ -21,7 +23,9 @@ import { MessageConsumer } from './consumer/message.consumer';
   providers: [
     ChatEventsGateway,
     ThrottleGuard,
-    MessageConsumer
+    MessageConsumer,
+    // GroupQueueMessageInterceptor,
+    // U2UQueueMessageInterceptor
   ]
 })
 export class EventsModule {
