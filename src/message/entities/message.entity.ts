@@ -30,7 +30,7 @@ export class MessageEntity{
     @JoinColumn({name:'receiver_user_id'})
     receiver:Profile
 
-    @OneToOne(()=>MessageEntity,message=>message.id,{cascade:true, nullable:true})
+    @ManyToOne(()=>MessageEntity,message=>message.id,{cascade:true, nullable:true})
     @JoinColumn({name:'reply_to_id'})
     replyTo:MessageEntity
 }

@@ -24,7 +24,8 @@ export function ValidateContent(maxLength: number = 1000, validationOptions?: Va
             options: validationOptions,
             validator: {
                 validate(value: string) {
-                    if (!value) return true
+                    const notEx:boolean = (value === undefined || value === null)
+                    if (notEx) return true
                     // Check if the property value is a string
                     else if (typeof value !== 'string') return false
                     else if (value.length > maxLength) return false

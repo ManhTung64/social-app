@@ -4,6 +4,7 @@ import { FileInfo } from "src/post/entities/post.entity";
 import { MessageEntity } from "../../entities/message.entity";
 import { Group } from "src/group/entities/group.entity";
 import { ValidateContent } from "src/message/decorators/validateContent.decorator";
+import { ValidateUuid } from "src/message/decorators/validateUuid.decorator";
 
 export class FindUserToUserMessageReqDto{
     @IsNotEmpty()
@@ -18,7 +19,7 @@ export class CreateMessageReqDto{
     receiver:number
     @ValidateContent()
     content:string
-    @IsOptional()
+    @ValidateUuid()
     reply_id: string
     @IsOptional()
     files:FileInfo[]

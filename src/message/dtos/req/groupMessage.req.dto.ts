@@ -4,6 +4,7 @@ import { Group } from "src/group/entities/group.entity"
 import { MessageEntity } from "src/message/entities/message.entity"
 import { FileInfo } from "src/post/entities/post.entity"
 import { DeleteMessageReqDto } from "./userToUserMessage.dto"
+import { ValidateUuid } from "src/message/decorators/validateUuid.decorator"
 
 export class CreateGroupMessageReqDto{
     @IsOptional()
@@ -12,7 +13,7 @@ export class CreateGroupMessageReqDto{
     content:string
     @IsNotEmpty()
     group_id:number
-    @IsOptional()
+    @ValidateUuid()
     reply_id: string
     @IsOptional()
     files:FileInfo[]
