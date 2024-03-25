@@ -9,6 +9,7 @@ import { SocketDto } from '../dtos/res/socketResDto';
 export class U2UQueueMessageInterceptor implements NestInterceptor {
     constructor(@InjectQueue('message-queue') private readonly queueService: Queue) { }
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+
         return next.handle().pipe(
             tap((data: SocketDto) => {
                 this.queueService.add('user-queue', {
@@ -16,7 +17,12 @@ export class U2UQueueMessageInterceptor implements NestInterceptor {
                     event: data.event,
                     receiver_id: data.data.receiver.id,
                     data: data.data
-                }, { removeOnComplete: true })
+                }, {
+                    removeOnComplete: true,
+                    removeOnFail:true,
+                    lifo:true,
+                    timeout:5000
+                })
             }),
         );
     }

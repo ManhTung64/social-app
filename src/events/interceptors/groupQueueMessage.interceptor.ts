@@ -16,7 +16,12 @@ export class GroupQueueMessageInterceptor implements NestInterceptor {
                     event: data.event,
                     group_id: data.data.group.id,
                     data: data.data
-                }, { removeOnComplete: true })
+                }, {
+                    removeOnComplete: true,
+                    removeOnFail: true,
+                    lifo: true,
+                    timeout: 5000
+                })
             }),
         );
     }
