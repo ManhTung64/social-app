@@ -29,6 +29,7 @@ export function ValidateContent(maxLength: number = 1000, validationOptions?: Va
                     // Check if the property value is a string
                     else if (typeof value !== 'string') return false
                     else if (value.length > maxLength) return false
+                    // Check censored
                     else if (ContentValidator.censoredContent(value).length > 0) return false
                     return true;
                 },

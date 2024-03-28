@@ -318,7 +318,11 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
         if (isMember) {
           let listClients: Socket[] = this.listGroups.get(group.id.toString())
           // add => push, remove: delete
-          add ? listClients.push(client) : listClients = listClients.filter((c) => { return c.data.userId != client.data.userId })
+          if (add) listClients.push(client) && client.join(group.id.toString())
+          else {
+            listClients = listClients.filter((c) => { return c.data.userId != client.data.userId })
+            client.leave(group.id.toString())
+          }
           this.listGroups.set(group.id.toString(), listClients)
         }
       })
@@ -341,11 +345,8 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
   }
   // emit all member in group
   public emitAllMembers(groupId: number, event: string, data: any) {
-    if (this.listGroups.has(groupId.toString())) {
-      this.listGroups.get(groupId.toString()).map((user: Socket) => {
-        user.emit(event, data)
-      })
-    }
+    if (this.listGroups.has(groupId.toString())) this.server.to(groupId.toString()).emit(event,data)
+    else throw new WsException('Connected error')
   }
   // update (remove or add) member in group
   private updateSocketGroup(group_id: number, client: Socket, add: boolean) {
