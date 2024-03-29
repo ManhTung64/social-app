@@ -11,17 +11,17 @@ export class GroupQueueMessageInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         return next.handle().pipe(
             tap((data: SocketDto) => {
-                this.queueService.add('user-queue', {
-                    id: data.server_id,
-                    event: data.event,
-                    group_id: data.data.group.id,
-                    data: data.data
-                }, {
-                    removeOnComplete: true,
-                    removeOnFail: true,
-                    lifo: true,
-                    timeout: 5000
-                })
+                // this.queueService.add('user-queue', {
+                //     id: data.server_id,
+                //     event: data.event,
+                //     group_id: data.data.group.id,
+                //     data: data.data
+                // }, {
+                //     removeOnComplete: true,
+                //     removeOnFail: true,
+                //     lifo: true,
+                //     timeout: 5000
+                // })
             }),
         );
     }

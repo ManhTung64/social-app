@@ -6,4 +6,5 @@ const redisConfig = {
     port: 12614, 
     password: process.env.REDIS_PASSWORD,
   }
-export default redisConfig
+const redisUrlConfig = {url: process.env.REDIS_URL}
+export {redisConfig, redisUrlConfig}

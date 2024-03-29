@@ -12,17 +12,17 @@ export class U2UQueueMessageInterceptor implements NestInterceptor {
 
         return next.handle().pipe(
             tap((data: SocketDto) => {
-                this.queueService.add('user-queue', {
-                    id: data.server_id,
-                    event: data.event,
-                    receiver_id: data.data.receiver.id,
-                    data: data.data
-                }, {
-                    removeOnComplete: true,
-                    removeOnFail:true,
-                    lifo:true,
-                    timeout:5000
-                })
+                // this.queueService.add('user-queue', {
+                //     id: data.server_id,
+                //     event: data.event,
+                //     receiver_id: data.data.receiver.id,
+                //     data: data.data
+                // }, {
+                //     removeOnComplete: true,
+                //     removeOnFail:true,
+                //     lifo:true,
+                //     timeout:5000
+                // })
             }),
         );
     }

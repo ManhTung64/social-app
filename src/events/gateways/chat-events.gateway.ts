@@ -169,7 +169,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     if (!res) throw new WebSocketExceptionFilter()
     this.updateSocketGroup(data.groupId, client, true)
     this.emitAllMembers(data.groupId, 'add-member-result', res)
-    return plainToClass(SocketDto, { data, event: 'add-member-result', server_id: this.SERVER_ID })
   }
   // remove member
   @SubscribeMessage('remove-member')
@@ -182,7 +181,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     if (!res) throw new WebSocketExceptionFilter()
     this.emitAllMembers(data.groupId, 'remove-member-result', res)
     this.updateSocketGroup(data.groupId, client, false)
-    return plainToClass(SocketDto, { data, event: 'remove-member-result', server_id: this.SERVER_ID })
   }
   // change group name
   @SubscribeMessage('change-group-name')
@@ -194,7 +192,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const res: GroupResDto = await this.groupService.changeGroupName(data)
     if (!res) throw new WebSocketExceptionFilter()
     this.emitAllMembers(data.group_id, 'return-change-group-name', res)
-    return plainToClass(SocketDto, { data, event: 'return-change-group-name', server_id: this.SERVER_ID })
   }
   // change creator of group
   @SubscribeMessage('change-creator')
@@ -206,7 +203,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     const res: GroupResDto = await this.groupService.changeCreator(data)
     if (!res) throw new WebSocketExceptionFilter()
     this.emitAllMembers(data.group_id, 'return-change-creator', res)
-    return plainToClass(SocketDto, { data, event: 'return-change-creator', server_id: this.SERVER_ID })
   }
   // delete group with creator
   @SubscribeMessage('delete-group')
@@ -220,7 +216,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     this.emitAllMembers(data.group_id, 'return-change-creator', res)
     // remove clients
     this.listGroups.delete(data.group_id.toString())
-    return plainToClass(SocketDto, { data, event: 'return-change-creator', server_id: this.SERVER_ID })
   }
   // add new message in group
   @SubscribeMessage('add-group-message')
@@ -231,7 +226,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     createMessage.sender = this.listClients.get(client.id).data.user.userId
     const data: GroupMessageResDto = await this.messageService.addNewGroupMessage(createMessage)
     this.emitAllMembers(createMessage.group_id, 'return-add-group-message', data)
-    return plainToClass(SocketDto, { data, event: 'return-add-group-message', server_id: this.SERVER_ID })
   }
   // remove message in group
   @SubscribeMessage('remove-group-message')
@@ -242,7 +236,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     deleteMessage.sender = this.listClients.get(client.id).data.user.userId
     const data: GroupMessageResDto = await this.messageService.deleteGroupMessage(deleteMessage)
     this.emitAllMembers(deleteMessage.group_id, 'return-remove-group-message', data)
-    return plainToClass(SocketDto, { data, event: 'return-remove-group-message', server_id: this.SERVER_ID })
   }
   // member out group
   @SubscribeMessage('out-group')
@@ -255,7 +248,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     client.emit('out-group-message', data)
     this.updateSocketGroup(outGroup.groupId, client, false)
     this.emitAllMembers(outGroup.groupId, 'out-group-message', data)
-    return plainToClass(SocketDto, { data, event: 'out-group-message', server_id: this.SERVER_ID })
   }
   // get list message in conservation user to user
   @SubscribeMessage('get-group-message')
@@ -286,7 +278,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     pinMessage.creator = this.listClients.get(client.id).data.user.userId
     const data: PinGroupMessageResDto = await this.pinService.pinGroupMessage(pinMessage)
     this.emitAllMembers(data.group.id, 'return-pin-group-message', data)
-    return plainToClass(SocketDto, { data, event: 'return-pin-group-message', server_id: this.SERVER_ID })
   }
   // unpin message in u2u conservation
   @SubscribeMessage('unpin-group-message')
@@ -297,7 +288,6 @@ export class ChatEventsGateway implements OnGatewayConnection, OnGatewayDisconne
     unpinMessage.creator_id = this.listClients.get(client.id).data.user.userId
     const data: PinGroupMessageResDto = await this.pinService.unPinGroupMessage(unpinMessage)
     this.emitAllMembers(data.group.id, 'return-unpin-group-message', data)
-    return plainToClass(SocketDto, { data, event: 'return-unpin-group-message', server_id: this.SERVER_ID })
   }
   // get list pin message of u2u conservation
   @SubscribeMessage('get-pin-group-messages')

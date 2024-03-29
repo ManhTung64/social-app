@@ -10,7 +10,7 @@ import { GroupModule } from './group/group.module';
 import { SchedulingModule } from './scheduling/scheduling.module';
 import { AppGateway } from './socket-gateway/event.gateway';
 import { EventsModule } from './events/events.module';
-import redisConfig from './configuration/redis.config'
+import {redisConfig} from './configuration/redis.config'
 import { MessageModule } from './message/message.module';
 
 @Module({
@@ -21,6 +21,7 @@ import { MessageModule } from './message/message.module';
       }),
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
+    
     AuthModule,
     PostModule,
     GroupModule,
