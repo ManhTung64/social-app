@@ -30,7 +30,7 @@ export class Profile {
     @JoinColumn()
     posts: PostContent[]
 
-    @ManyToMany(() => Group, group => group.members,{onDelete:'CASCADE'})
+    @ManyToMany(() => Group, group => group.id,{onDelete:'CASCADE'})
     @JoinTable({name:'member_group'})
     groups: Group[];
 

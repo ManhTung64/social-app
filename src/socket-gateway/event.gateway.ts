@@ -39,20 +39,20 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     handleDisconnect(client: any) {
 
     }
-    @SubscribeMessage('add-member')
-    async addMember(@MessageBody() data: AddMember) {
-        const res:boolean = await this.groupService.addMember(data)
-        if (!res) throw new WsException('Error')
-        const response:WsResponse = {event:'add-member-result',data:true}
-        return response
-    }
-    @SubscribeMessage('remove-member')
-    async removeMember(@MessageBody() data: RemoveMember) {
-        const res:boolean = await this.groupService.removeMember(data)
-        if (!res) throw new WsException('Error')
-        const response:WsResponse = {event:'remove-member-result',data:true}
-        return response
-    }
+    // @SubscribeMessage('add-member')
+    // async addMember(@MessageBody() data: AddMember) {
+    //     const res:boolean = await this.groupService.addMember(data)
+    //     if (!res) throw new WsException('Error')
+    //     const response:WsResponse = {event:'add-member-result',data:true}
+    //     return response
+    // }
+    // @SubscribeMessage('remove-member')
+    // async removeMember(@MessageBody() data: RemoveMember) {
+    //     const res:boolean = await this.groupService.removeMember(data)
+    //     if (!res) throw new WsException('Error')
+    //     const response:WsResponse = {event:'remove-member-result',data:true}
+    //     return response
+    // }
     @SubscribeMessage('change-state-post')
     async changeStatePost(@MessageBody() data: ChangeStateReqDto) {
         const res:StateResDto = await this.stateService.changeState(data)

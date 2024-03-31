@@ -17,7 +17,6 @@ export class AuthenticationGuard implements CanActivate {
                 secret: 'demo-secret'
             }
         ).catch(()=>{throw new UnauthorizedException()})
-        
         request['auth'] = payload;
         return true;
     }

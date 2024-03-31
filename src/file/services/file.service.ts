@@ -3,6 +3,8 @@ import { S3Service } from './s3.service';
 import { Multer } from 'multer';
 import { UploadFile } from '../dtos/req/file.dto.req';
 import { FileInfo } from '../../post/entities/post.entity';
+import { plainToClass } from 'class-transformer';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class FileService {
@@ -71,6 +73,40 @@ export class FileService {
             list.push(finalFile)
         })
         return list
+    }
+    private getFileTypeFromBase64(base64String:string):string {
+        const matches = base64String.match(/^data:([a-zA-Z]+\/[a-zA-Z]+);base64,/);
+        if (matches && matches.length > 1) {
+          return matches[1];
+        }
+        return null;
+      }
+    public async uploadBase64File(files: string[]): Promise<FileInfo[]> {
+        const list_final_files:FileInfo[] = []
+        for (let i = 0; i < files.length; i++){
+            const buffer = Buffer.from(files[i].split(',')[1], 'base64');
+            const type: string = this.getFileTypeFromBase64(files[i])
+            if (!type) throw new WsException('File error')
+            var formatFile: Express.Multer.File = {
+                fieldname: 'file',
+                originalname: 'uploaded_file',
+                encoding: 'base64',
+                mimetype: type,  
+                size: buffer.length,
+                buffer,
+                destination: './uploads', 
+                filename: 'uploaded_file',
+                path: 'uploaded_file',
+                stream: null,  
+            };
+            const final_file:FileInfo = {
+                type: this.checkTypeFile(plainToClass(UploadFile, formatFile)),
+                url:await this.s3Service.UploadOneFile(plainToClass(UploadFile, formatFile)),
+                no: i
+            }
+            list_final_files.push(final_file)
+        }
+        return list_final_files
     }
     private checkTypeFile(file: UploadFile): string {
         if (file.mimetype.startsWith('image/')) {

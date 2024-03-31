@@ -1,14 +1,30 @@
 import { Module } from '@nestjs/common';
-import { StateEventsGateway } from './gateways/state-events.gateway';
+import { ChatEventsGateway } from './gateways/chat-events.gateway';
 import { AuthModule } from 'src/auth/auth.module';
+import { MessageModule } from 'src/message/message.module';
+import { GroupModule } from 'src/group/group.module';
+import { ThrottleGuard } from './guards/throttle.guard';
+import { BullModule } from '@nestjs/bull';
+import { MessageConsumer } from './consumer/message.consumer';
 
 
 @Module({
   imports:[
-    AuthModule
+    AuthModule,
+    MessageModule,
+    GroupModule,
+    BullModule.registerQueue({
+      name: 'message-queue',
+      prefix:'queue'
+    })
   ],
   providers: [
-    StateEventsGateway,
+    ChatEventsGateway,
+    ThrottleGuard,
+    MessageConsumer,
+    // GroupQueueMessageInterceptor,
+    // U2UQueueMessageInterceptor
   ]
 })
-export class EventsModule {}
+export class EventsModule {
+}
